@@ -122,7 +122,7 @@ export default function Cadastro() {
                             value={corretor.dsNome}
                             onChange={handleChange}
                             placeholder=" "
-                            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                             required
                         />
                         <label
@@ -148,7 +148,7 @@ export default function Cadastro() {
                                     }));
                                 })}
                                 maxLength={18} // Maximum length for CPF/CNPJ formats
-                                className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                                className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                                 placeholder=" "
                             />
                             {errorCnpj && <p className="text-red-600 text-sm mt-1">{errorCnpj}</p>}
@@ -161,7 +161,7 @@ export default function Cadastro() {
                     </div>
 
                     {/* Banco Field */}
-                    <label htmlFor="dsBanco" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                    <label htmlFor="dsBanco" className="block mb-2 text-sm font-medium text-gray-900">
                         Banco
                     </label>
                     <Select
@@ -187,7 +187,7 @@ export default function Cadastro() {
                             value={corretor.cdAgencia}
                             onChange={handleChange}
                             placeholder=" "
-                            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                             required
                         />
                         <label
@@ -207,7 +207,7 @@ export default function Cadastro() {
                             value={corretor.cdConta}
                             onChange={handleChange}
                             placeholder=" "
-                            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                             required
                         />
                         <label
@@ -227,7 +227,7 @@ export default function Cadastro() {
                             value={corretor.dsCidade}
                             onChange={handleChange}
                             placeholder=" "
-                            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                             required
                         />
                         <label
@@ -253,7 +253,7 @@ export default function Cadastro() {
                             }}
                             maxLength={2}
                             placeholder=" "
-                            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                             required
                         />
                         <label

@@ -17,11 +17,14 @@ export function SideBarComponent({nome} : {nome?: string}) {
                     <li className="bg-[#FF8B00] hover:bg-orange-600 p-2 cursor-pointer text-center font-semibold" onClick={() => router.push("/contrato")}>
                         CONTRATOS
                     </li>
-                    <li className="bg-[#FF8B00] hover:bg-orange-600 p-2 cursor-pointer text-center font-semibold">
+                    <li className="bg-[#FF8B00] hover:bg-orange-600 p-2 cursor-pointer text-center font-semibold" onClick={() => router.push("/motorista")}>
                         MOTORISTA
                     </li>
-                    <li className="bg-[#FF8B00] hover:bg-orange-600 p-2 cursor-pointer text-center font-semibold">
+                    <li className="bg-[#FF8B00] hover:bg-orange-600 p-2 cursor-pointer text-center font-semibold" onClick={() => router.push("/cliente")}>
                         CLIENTE
+                    </li>
+                    <li className="bg-[#FF8B00] hover:bg-orange-600 p-2 cursor-pointer text-center font-semibold" onClick={() => router.push("/perfil")}>
+                        MEU PERFIL
                     </li>
                     <li className="bg-[#FF8B00] hover:bg-orange-600 p-2 cursor-pointer text-center font-semibold">
                         OUTROS

@@ -1,65 +1,46 @@
 'use client';
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Corretor } from '@/components/service/CorretorService';
 import { SideBarComponent } from '@/components/menu/SideBar';
 import { ChevronRight, ChevronLeft, Search, RefreshCcw, Edit } from "lucide-react";
-import { GetTableContratoView, TableContratoResponse, TableContrato } from "@/components/service/ContratoService";
+import { Corretor } from '@/components/service/CorretorService';
+import { ClienteDto, TableClienteResponse, GetAllClientsPage } from '@/components/service/ClienteService';
 
 
-export default function Contrato() {
+export default function Cliente() {
     const router = useRouter();
+    const [cliente, setCliente] = useState<ClienteDto[]>([]);
     const [corretor, setCorretor] = useState<Corretor | null>(null);
-    const [contratos, setContratos] = useState<TableContrato[]>([]);
-
     const [loading, setLoading] = useState(false);
-
-    const [cod, setCod] = useState('');
-    const [status, setStatus] = useState('');
-    const [client, setClient] = useState('');
-    const [mercadoria, setMercadoria] = useState('');
-    const [vendedor, setVendedor] = useState('');
-    const [preco, setPreco] = useState('');
-    const [dtContrato, setDtContrato] = useState('');
-
-    const fetchContratosFilter = async () => {
-        if (corretor?.cdCorretor != null) {
-            setLoading(true);
-            try {
-                const data: TableContratoResponse = await GetTableContratoView(corretor.cdCorretor, currentPage,
-                    cod, status, client, mercadoria, vendedor, preco, dtContrato
-                );
-                setContratos(data.content);
-                setTotalPages(data.page.totalPages);
-                setTotalElements(data.page.totalElements);
-            } catch (error) {
-                console.error("Failed to fetch contracts:", error);
-            } finally {
-                setLoading(false);
-            }
-        }
-    };
-
-    const refreshFilter = async () => {
-        setCod('');
-        setStatus('');
-        setClient('');
-        setMercadoria('');
-        setVendedor('');
-        setPreco('');
-        setDtContrato('');
-        if (corretor?.cdCorretor != null) {
-            const data: TableContratoResponse = await GetTableContratoView(corretor.cdCorretor, currentPage,
-                '', '', '', '', '', '', '');
-            setContratos(data.content);
-            setTotalPages(data.page.totalPages);
-            setTotalElements(data.page.totalElements);
-        }
-    };
 
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const [totalElements, setTotalElements] = useState(0);
+
+    const[nome, setNome] = useState('');
+    const[endereco, setEndereco] = useState('');
+    const[cidade, setCidade] = useState('');
+    const[estado, setEstado] = useState('');
+    const[cpfCnpj, setCpfCnpj] = useState('');
+
+    useEffect(() => {
+        const fetchClientes = async () => {
+            setLoading(true);
+            try {
+                const data: TableClienteResponse = await GetAllClientsPage(currentPage, '', '', '', '', '');
+                setCliente(data.content);
+                setTotalPages(data.page.totalPages);
+                setTotalElements(data.page.totalElements);
+            } catch (error) {
+                console.error("Failed to fetch clientes:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchClientes();
+
+    }, [currentPage]);
 
     useEffect(() => {
         const storedData = localStorage.getItem('corretor');
@@ -68,28 +49,6 @@ export default function Contrato() {
             setCorretor(userData);
         }
     }, []);
-
-    useEffect(() => {
-        const fetchContratos = async () => {
-            if (corretor?.cdCorretor != null) {
-                setLoading(true);
-                try {
-                    const data: TableContratoResponse = await GetTableContratoView(corretor.cdCorretor, currentPage,
-                        '', '', '', '', '', '', '');
-                    setContratos(data.content);
-                    setTotalPages(data.page.totalPages);
-                    setTotalElements(data.page.totalElements);
-                } catch (error) {
-                    console.error("Failed to fetch contracts:", error);
-                } finally {
-                    setLoading(false);
-                }
-            }
-        };
-
-        fetchContratos();
-
-    }, [corretor?.cdCorretor, currentPage]);
 
     const handleNextPage = () => {
         if (currentPage < totalPages - 1) {
@@ -103,6 +62,33 @@ export default function Contrato() {
         }
     };
 
+    const fetchClienteFilter = async () => {
+        setLoading(true);
+        try {
+            const data: TableClienteResponse = await GetAllClientsPage(currentPage, nome, cpfCnpj, endereco, cidade, estado);
+            setCliente(data.content);
+            setTotalPages(data.page.totalPages);
+            setTotalElements(data.page.totalElements);
+        } catch (error) {
+            console.error("Failed to fetch clientes:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const refreshFilter = async () => {
+        setNome('');
+        setEndereco('');
+        setCidade('');
+        setEstado('');
+        setCpfCnpj('');
+
+        const data: TableClienteResponse = await GetAllClientsPage(currentPage, '', '', '', '', '');
+        setCliente(data.content);
+        setTotalPages(data.page.totalPages);
+        setTotalElements(data.page.totalElements);
+    };
+
     return (
         <div className="bg-[#FFF7E5] flex flex-row h-screen overflow-hidden">
             <SideBarComponent nome={corretor?.dsNome} />
@@ -113,16 +99,16 @@ export default function Contrato() {
                     <div className="w-full flex flex-col">
                         <div className="w-full flex flex-row justify-between mt-8 pl-8">
                             <div className="items-start justify-center">
-                                <h1 className="text-2xl font-bold mb-4">Contratos</h1>
+                                <h1 className="text-2xl font-bold mb-4">Clientes</h1>
                             </div>
                             
                             <div className="relative flex items-center space-x-5 pb-5 mr-6">    
                                 <button 
                                     type="button" 
                                     className="bg-green-700 hover:bg-green-800 rounded px-4 py-2 text-white" 
-                                    onClick={() => router.push("/contrato/cadastro")}
+                                    onClick={() => router.push("/cliente/cadastro")}
                                 >
-                                    Novo Contrato
+                                    Novo Cliente
                                 </button>                   
 
                                 <button 
@@ -136,104 +122,83 @@ export default function Contrato() {
                         </div>
 
                         {/* Search Bar */}
-                        <div className="flex flex-col space-y-5 items-center mt-5 bg-white ml-10 mr-10 pb-10 rounded-md shadow" 
+                        <div className="flex flex-col space-y-5 items-center mt-5 bg-white ml-10 mr-10 rounded-md shadow" 
                             onKeyDown={(e) => {
                                 if (e.key === "Enter") {
-                                    fetchContratosFilter();
+                                    fetchClienteFilter();
                                 }
                             }}>
                             <div className="items-start w-full">
-                                <h1 className="mt-5 ml-8 font-medium text-lg">Pesquisar contratos</h1>
+                                <p className="mt-5 ml-8 font-medium text-lg">Pesquisar por clientes</p>
                             </div>
                             <div className="flex flex-row space-x-4">
                                 <div className="flex flex-col">
-                                    <label htmlFor="dsCliente">Código</label>
+                                    <label htmlFor="dsNome">Nome</label>
                                     <input
-                                        id="codigo"
-                                        type="number"
-                                        placeholder={`codigo`}
-                                        value={cod}
-                                        onChange={(e) => setCod(e.target.value)}
-                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
-                                    />
-                                </div>
-                                {/* 
-                                <div className="flex flex-col">
-                                    <label htmlFor="dsStatus">Status</label>
-                                    <select 
-                                        id="dsStatus"
-                                        value={status}
-                                        onChange={(e) => setStatus(e.target.value)}
-                                        className="w-[200px] px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
-                                    >
-                                        <option value=""></option>
-                                        <option value="OK">OK</option>
-                                        <option value="RASCUNHO">RASCUNHO</option>
-                                    </select>
-                                </div>
-                                 */}
-                                <div className="flex flex-col">
-                                    <label htmlFor="dsCliente">Cliente</label>
-                                    <input
-                                        id="dsCliente"
+                                        id="dsNome"
                                         type="text"
-                                        placeholder={`cliente`}
-                                        value={client}
-                                        onChange={(e) => setClient(e.target.value)}
+                                        placeholder={`nome`}
+                                        value={nome}
+                                        onChange={(e) => setNome(e.target.value)}
                                         className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
                                     />
                                 </div>
                                 <div className="flex flex-col">
-                                    <label htmlFor="dsCliente">Mercadoria</label>
+                                    <label htmlFor="dsEndereco">Endereço</label>
                                     <input
-                                        id="dsMercadoria"
+                                        id="dsEndereco"
                                         type="text"
-                                        placeholder={`mercadoria`}
-                                        value={mercadoria}
-                                        onChange={(e) => setMercadoria(e.target.value)}
+                                        placeholder={`endereço`}
+                                        value={endereco}
+                                        onChange={(e) => setEndereco(e.target.value)}
                                         className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
                                     />
                                 </div>
                                 <div className="flex flex-col">
-                                    <label htmlFor="dsCliente">Vendedor</label>
+                                    <label htmlFor="dsCidade">Cidade</label>
                                     <input
-                                        id="dsVendedor"
+                                        id="dsCidade"
                                         type="text"
-                                        placeholder={`vendedor`}
-                                        value={vendedor}
-                                        onChange={(e) => setVendedor(e.target.value)}
+                                        placeholder={`cidade`}
+                                        value={cidade}
+                                        onChange={(e) => setCidade(e.target.value)}
+                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                                    />
+                                </div>
+                                <div className="flex flex-col">
+                                    <label htmlFor="dsEstado">Estado</label>
+                                    <input
+                                        id="dsEstado"
+                                        type="text"
+                                        placeholder={`estado`}
+                                        value={estado}
+                                        onChange={(e) => {
+                                            const value = e.target.value.toUpperCase();
+                                            if (value.length <= 2) {
+                                                setEstado(value);
+                                            }
+                                        }}
+                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                                    />
+                                </div>
+                                <div className="flex flex-col">
+                                    <label htmlFor="cdCpfCnpj">CPF/CNPJ</label>
+                                    <input
+                                        id="cdCpfCnpj"
+                                        type="text"
+                                        placeholder={`cpf ou cnpj`}
+                                        value={cpfCnpj}
+                                        onChange={(e) => setCpfCnpj(e.target.value)}
                                         className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
                                     />
                                 </div>
                             </div>
                             <div className="flex flex-row space-x-4">
-                                <div className="flex flex-col">
-                                    <label htmlFor="dsCliente">Preço/Saco</label>
-                                    <input
-                                        id="dsPreco"
-                                        type="text"
-                                        placeholder={`preço`}
-                                        value={preco}
-                                        onChange={(e) => setPreco(e.target.value)}
-                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
-                                    />
-                                </div>
-                                <div className="flex flex-col">
-                                    <label htmlFor="dsCliente">Data Contrato</label>
-                                    <input
-                                        id="dtData"
-                                        type="date"
-                                        placeholder={`data`}
-                                        value={dtContrato}
-                                        onChange={(e) => setDtContrato(e.target.value)}
-                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
-                                    />
-                                </div>
-                                <div className="flex flex-col mt-[22px]">
+                                <div className="flex flex-col mt-[22px] mb-5">
                                     <button 
                                         type="submit" 
-                                        className="space-x-2 flex flex-row bg-blue-700 hover:bg-blue-800 px-4 py-2 text-white"
-                                        onClick={() => fetchContratosFilter()}
+                                        className="space-x-2 flex flex-row bg-blue-700 hover:bg-blue-800 px-4 py-2 text-white rounded"
+                                        onClick={() => fetchClienteFilter()}
                                     >
                                         <p className="">Buscar</p>
                                         <Search className="w-[20px] h-[20px]"/>
@@ -242,7 +207,7 @@ export default function Contrato() {
                                 <div className="flex flex-col mt-[22px]">
                                     <button 
                                         type="submit" 
-                                        className="space-x-2 flex flex-row bg-orange-500 hover:bg-yellow-800 px-4 py-2 text-white"
+                                        className="space-x-2 flex flex-row bg-orange-500 hover:bg-yellow-800 px-4 py-2 text-white rounded"
                                         onClick={() => refreshFilter()}
                                     >
                                         <p>Limpar</p>
@@ -253,38 +218,41 @@ export default function Contrato() {
                         </div>
                     </div>
 
-
                     {/* Table */}
-                    {contratos.length > 0 ? (
+                    {cliente.length > 0 ? (
                         <div className="items-center justify-center pl-20 pr-20">
                             <div className="overflow-x-auto">
                                 <table className="min-w-full bg-white border border-gray-200 shadow-md rounded-lg">
                                     <thead className="bg-gray-100">
                                         <tr className="items-center">
-                                            <th className="px-6 py-3 border-b text-left">Código</th>
-                                            <th className="px-6 py-3 border-b text-left">Data</th>
-                                            <th className="px-6 py-3 border-b text-left">Mercadoria</th>
-                                            <th className="px-6 py-3 border-b text-left">Comprador</th>
-                                            <th className="px-6 py-3 border-b text-left">Vendedor</th>
-                                            <th className="px-6 py-3 border-b text-left">Preço/Saco</th>
-                                            <th className="px-6 py-3 border-b text-left">Motorista</th>
+                                            <th className="px-6 py-3 border-b text-left">Nome</th>
+                                            <th className="px-6 py-3 border-b text-left">Telefone</th>
+                                            <th className="px-6 py-3 border-b text-left">CPF/CNPJ</th>
+                                            <th className="px-6 py-3 border-b text-left">Cidade</th>
+                                            <th className="px-6 py-3 border-b text-left">INS/IR</th>
+                                            <th className="px-6 py-3 border-b text-left">Chave PIX</th>
+                                            <th className="px-6 py-3 border-b text-left">Banco</th>
+                                            <th className="px-6 py-3 border-b text-left">Agencia</th>
+                                            <th className="px-6 py-3 border-b text-left">Conta</th>
                                             <th className="px-6 py-3 border-b text-left">Editar</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {contratos.map((contrato) => (
-                                            <tr key={contrato.cdContrato} className="border-b items-center">
-                                                <td className="px-6 py-4">{contrato.cdContrato}</td>
-                                                <td className="px-6 py-4">{contrato.dtContrato ? contrato.dtContrato : "" }</td>
-                                                <td className="px-6 py-4">{contrato.mercadoria?.dsMercadoria === null ? "" : contrato.mercadoria?.dsMercadoria}</td>
-                                                <td className="px-6 py-4">{contrato.comprador?.dsNome}</td>
-                                                <td className="px-6 py-4">{contrato.vendedor?.dsNome}</td>
-                                                <td className="px-6 py-4">${contrato.precoSaco === null ? "" : contrato.precoSaco?.toFixed(2)}</td>
-                                                <td className="px-6 py-4">{contrato.motorista?.dsNome}</td>
+                                        {cliente.map((cliente) => (
+                                            <tr key={cliente.cdCliente} className="border items-center">
+                                                <td className="px-6 py-4">{cliente.dsNome}</td>
+                                                <td className="px-6 py-4">{cliente.dsTelefone === null ? '' : cliente.dsTelefone}</td>
+                                                <td className="px-6 py-4">{cliente.cdCpfCnpj}</td>
+                                                <td className="px-6 py-4">{cliente.dsCidade === null ? '' : cliente.dsCidade}</td>
+                                                <td className="px-6 py-4">{cliente.dsIns === null ? '' : cliente.dsIns}</td>
+                                                <td className="px-6 py-4">{cliente.dsChavePix === null ? '' : cliente.dsChavePix}</td>
+                                                <td className="px-6 py-4">{cliente.dsBanco === null ? '' : cliente.dsBanco}</td>
+                                                <td className="px-6 py-4">{cliente.cdAgencia === null ? '' : cliente.cdAgencia}</td>
+                                                <td className="px-6 py-4">{cliente.cdConta === null ? '' : cliente.cdConta}</td>
                                                 <td className="px-10 py-4 items-center">
                                                     <button type="button" onClick={(e) => {
                                                         e.preventDefault();
-                                                        router.push("/contrato/" + contrato.cdContrato);
+                                                        router.push("/cliente/" + cliente.cdCliente);
                                                     }}>
                                                         <Edit/>
                                                     </button>
@@ -296,7 +264,7 @@ export default function Contrato() {
                             </div>
 
                             {/* Pagination Controls */}
-                            {contratos.length > 0 ? (
+                            {cliente.length > 0 ? (
                                 <div className="flex flex-col">
                                     <div className="flex justify-center mt-6 space-x-4 p-2">
                                         <button
@@ -330,7 +298,7 @@ export default function Contrato() {
                             }
                         </div>
                     ) : (
-                        <p className="text-center text-sm">Nenhum contrato encontrado.</p>
+                        <p className="text-center text-sm">Nenhum cliente encontrado.</p>
                     )}
                     
                 </div>

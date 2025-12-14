@@ -2,21 +2,26 @@
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
+import { useRouter } from "next/navigation";
 import { SideBarComponent } from '@/components/menu/SideBar';
 import { CardContratoResponse, CardContrato, GetCardsContratoView } from '@/components/service/ContratoService';
 import { Corretor } from '@/components/service/CorretorService';
 import { useEffect, useState } from "react";
 import { Search, ChevronRight, ChevronLeft } from "lucide-react";
-import { Cliente, GetAllClients } from "@/components/service/ClienteService";
+import { ClienteDto, GetAllClients } from "@/components/service/ClienteService";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
-import { GetAllMotorista, Motorista } from "@/components/service/MotoristaService";
+import { GetAllMotorista, MotoristaDto } from "@/components/service/MotoristaService";
+import { Loading } from "@/components/utils/Loading";
+import { Truck } from "lucide-react";
+import { Disconected } from "@/components/utils/Disconected";
 
 export default function Menu() {
+    const router = useRouter();
     const [corretor, setCorretor] = useState<Corretor | null>(null);
-    const [clientes, setClientes] = useState<Cliente[]>([]);
+    const [clientes, setClientes] = useState<ClienteDto[]>([]);
     const [contratos, setContratos] = useState<CardContrato[]>([]);
-    const [motoristas, setMotoristas] = useState<Motorista[]>([]);
+    const [motoristas, setMotoristas] = useState<MotoristaDto[]>([]);
     const [loading, setLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
 
@@ -34,8 +39,8 @@ export default function Menu() {
                 setLoading(true);
                 try {
                     const data: CardContratoResponse = await GetCardsContratoView(corretor.cdCorretor);
-                    const clients: Cliente[] = await GetAllClients();
-                    const motorists: Motorista[] = await GetAllMotorista();
+                    const clients: ClienteDto[] = await GetAllClients();
+                    const motorists: MotoristaDto[] = await GetAllMotorista();
                     setClientes(clients);
                     setContratos(data.content);
                     setMotoristas(motorists);
@@ -77,7 +82,10 @@ export default function Menu() {
             <SideBarComponent nome={corretor?.dsNome} />
 
             {/* Main Content */}
-            <div className="flex flex-col w-full overflow-y-auto space-y-2">
+            {loading ? (
+                <Loading/>
+            ) : (
+                <div className="flex flex-col w-full overflow-y-auto space-y-2">
                 {corretor ? (
                     <>
                         {/* Contratos */}
@@ -111,9 +119,7 @@ export default function Menu() {
                             </div>
 
                             {/* Cards Section with Swiper */}
-                            {loading ? (
-                                <p className="text-sm text-gray-500 animate-pulse mb-4">Carregando...</p>
-                            ) : contratos.length > 0 ? (
+                            {contratos.length > 0 ? (
                                 <div className="relative w-full px-10">
                                     {/* Custom navigation buttons */}
                                     <button className="swiper-button-prev-custom absolute -left-5 z-10 top-[45%] -translate-y-1/2 p-3 bg-gray-300 rounded-full shadow-lg hover:bg-gray-400">
@@ -142,11 +148,20 @@ export default function Menu() {
                                     >
                                         {contratos.map((contrato) => (
                                             <SwiperSlide key={contrato.cdContrato} className="pb-[45px]">
-                                                <div className="bg-white shadow-lg rounded-lg border border-gray-200 flex flex-col justify-between">
+                                                <div className="bg-white shadow-lg rounded-lg border border-gray-200 flex flex-col justify-between cursor-pointer"
+                                                    onClick={(e) => {
+                                                            e.preventDefault();
+                                                            router.push("/contrato/" + contrato.cdContrato);
+                                                        }}>
                                                     <div className="p-6">
-                                                        <h2 className="text-xl font-bold mb-2 text-gray-800">
-                                                            Contrato #{contrato.cdContrato}
-                                                        </h2>
+                                                        <div className="flex flex-row w-full gap-4 mb-4">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                                                            </svg>
+                                                            <h2 className="text-xl font-bold mb-2 text-gray-800">
+                                                                {contrato.cdContrato}
+                                                            </h2>
+                                                        </div>
                                                         <p className="text-gray-600"><strong>Status:</strong> {contrato.dsStatus ?? ""}</p>
                                                         <p className="text-gray-600"><strong>Atualizado em:</strong> {contrato.dtInicial ? new Date(contrato.dtInicial).toLocaleDateString() : ""}</p>
                                                         <p className="text-gray-600"><strong>Grão:</strong> {contrato.mercadoria ?? ""}</p>
@@ -205,12 +220,21 @@ export default function Menu() {
                                     >
                                         {clientes.map((cliente) => (
                                             <SwiperSlide key={cliente.cdCpfCnpj} className="pb-[45px]">
-                                                <div className="bg-white shadow-lg rounded-lg border border-gray-200 flex flex-col justify-between">
+                                                <div className="bg-white shadow-lg rounded-lg border border-gray-200 flex flex-col justify-between cursor-pointer"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        router.push("/cliente/" + cliente.cdCliente);
+                                                    }}>
                                                     {/* Top Section - Contract Preview */}
                                                     <div className="p-6">
-                                                        <h2 className="text-xl font-bold mb-2 text-gray-800">
-                                                            {getFirstAndLastName(cliente.dsNome)}
-                                                        </h2>
+                                                        <div className="flex flex-row w-full gap-4 mb-4">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                                                            </svg>
+                                                            <h2 className="text-xl font-bold mb-2 text-gray-800">
+                                                                {getFirstAndLastName(cliente.dsNome)}
+                                                            </h2>
+                                                        </div>
                                                         <p className="text-gray-600"> <strong>CPF/CNPJ: </strong> {cliente.cdCpfCnpj === null ? "" : cliente.cdCpfCnpj}</p>
                                                         <p className="text-gray-600"><strong>Localização:</strong> {cliente.dsCidade === null ? "" : cliente.dsCidade}</p>
                                                         <p className="text-gray-600"><strong>Estado:</strong> {cliente.dsEstado === null ? "" : cliente.dsEstado}</p>
@@ -265,13 +289,20 @@ export default function Menu() {
                                         className="w-full"
                                     >
                                         {motoristas.map((motorista) => (
-                                            <SwiperSlide key={motorista.cdCpf} className="pb-[45px]">
-                                                <div className="bg-white shadow-lg rounded-lg border border-gray-200 flex flex-col justify-between">
+                                            <SwiperSlide key={motorista.cdMotorista} className="pb-[45px]">
+                                                <div className="bg-white shadow-lg rounded-lg border border-gray-200 flex flex-col justify-between cursor-pointer" 
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        router.push("/motorista/" + motorista.cdMotorista);
+                                                    }}>
                                                     {/* Top Section - Contract Preview */}
                                                     <div className="p-6">
-                                                        <h2 className="text-xl font-bold mb-2 text-gray-800">
-                                                            {motorista.dsNome}
-                                                        </h2>
+                                                        <div className="flex flex-row w-full gap-4 mb-4">
+                                                            <Truck></Truck>
+                                                            <h2 className="text-xl font-bold mb-2 text-gray-800">
+                                                                {motorista.dsNome}
+                                                            </h2>
+                                                        </div>
                                                         <p className="text-gray-600"> <strong>CPF: </strong> {motorista.cdCpf === null ? "" : motorista.cdCpf}</p>
                                                         <p className="text-gray-600"><strong>Localização:</strong> {motorista.dsCidade === null ? "" : motorista.dsCidade}</p>
                                                         <p className="text-gray-600"><strong>Estado:</strong> {motorista.dsEstado === null ? "" : motorista.dsEstado}</p>
@@ -291,9 +322,11 @@ export default function Menu() {
                         </div>
                     </>
                 ) : (
-                    <p>Você ainda não entrou, por favor entre no sistema</p>
+                    <Disconected/>
                 )}
             </div>
-        </div>
+            )
+        }
+    </div>
     );
 }

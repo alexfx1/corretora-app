@@ -4,10 +4,11 @@ interface SelectProps {
   id: string;
   options: string[];
   value: string;
+  width?: string;
   onChange: (value: string) => void;
 }
 
-export const Select: React.FC<SelectProps> = ({ id, options, value, onChange }) => {
+export const Select: React.FC<SelectProps> = ({ id, options, value, width, onChange }) => {
   const [search, setSearch] = useState<string>("");
   const [open, setOpen] = useState<boolean>(false);
 
@@ -67,7 +68,7 @@ export const Select: React.FC<SelectProps> = ({ id, options, value, onChange }) 
   return (
     <div
       id={`Select-${id}`}
-      className="relative flex flex-col items-center justify-center"
+      className={`${width} relative flex flex-col items-center justify-center`}
     >
       <div className="flex w-full items-center justify-between divide-x divide-neutral-200 gap-1 border border-neutral-400 bg-white text-black rounded-md overflow-hidden">
         <input

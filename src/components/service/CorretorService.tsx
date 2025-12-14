@@ -7,10 +7,7 @@ export interface Corretor {
     cdConta: string;
     dsCidade: string;
     dsEstado: string;
-}
-
-export interface CorretorResponse extends Corretor {
-    cdCorretor: number;
+    dsChavePix?: string;
 }
 
 const baseUrl = process.env.NEXT_PUBLIC_CORRETOR_API_URL || "http://localhost:8099/ms-corretora/corretor";
@@ -19,7 +16,7 @@ const baseUrl = process.env.NEXT_PUBLIC_CORRETOR_API_URL || "http://localhost:80
 * Fetches all corretores from the backend.
 * @returns A Promise that resolves to an array of Corretor objects.
 */
-export async function GetAllCorretores(): Promise<CorretorResponse[]> {
+export async function GetAllCorretores(): Promise<Corretor[]> {
 
    try {
        const response: Response = await fetch(baseUrl);
@@ -28,7 +25,7 @@ export async function GetAllCorretores(): Promise<CorretorResponse[]> {
            throw new Error(`Error ${response.status}: ${response.statusText}`);
        }
 
-       const data: CorretorResponse[] = await response.json();
+       const data: Corretor[] = await response.json();
        return data;
    } catch (error) {
        console.error("Failed to fetch corretores:", error);
