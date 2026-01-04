@@ -5,6 +5,7 @@ import { SideBarComponent } from '@/components/menu/SideBar';
 import { ChevronRight, ChevronLeft, Search, RefreshCcw, Edit } from "lucide-react";
 import { Corretor } from '@/components/service/CorretorService';
 import { ClienteDto, TableClienteResponse, GetAllClientsPage } from '@/components/service/ClienteService';
+import { Disconected } from "@/components/utils/Disconected";
 
 
 export default function Cliente() {
@@ -140,7 +141,7 @@ export default function Cliente() {
                                         placeholder={`nome`}
                                         value={nome}
                                         onChange={(e) => setNome(e.target.value)}
-                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm rounded"
                                     />
                                 </div>
                                 <div className="flex flex-col">
@@ -151,9 +152,22 @@ export default function Cliente() {
                                         placeholder={`endereço`}
                                         value={endereco}
                                         onChange={(e) => setEndereco(e.target.value)}
-                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm rounded"
                                     />
                                 </div>
+                                <div className="flex flex-col">
+                                    <label htmlFor="cdCpfCnpj">CPF/CNPJ</label>
+                                    <input
+                                        id="cdCpfCnpj"
+                                        type="text"
+                                        placeholder={`cpf ou cnpj`}
+                                        value={cpfCnpj}
+                                        onChange={(e) => setCpfCnpj(e.target.value)}
+                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm rounded"
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex flex-row space-x-4">
                                 <div className="flex flex-col">
                                     <label htmlFor="dsCidade">Cidade</label>
                                     <input
@@ -162,7 +176,7 @@ export default function Cliente() {
                                         placeholder={`cidade`}
                                         value={cidade}
                                         onChange={(e) => setCidade(e.target.value)}
-                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm rounded"
                                     />
                                 </div>
                                 <div className="flex flex-col">
@@ -178,18 +192,7 @@ export default function Cliente() {
                                                 setEstado(value);
                                             }
                                         }}
-                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
-                                    />
-                                </div>
-                                <div className="flex flex-col">
-                                    <label htmlFor="cdCpfCnpj">CPF/CNPJ</label>
-                                    <input
-                                        id="cdCpfCnpj"
-                                        type="text"
-                                        placeholder={`cpf ou cnpj`}
-                                        value={cpfCnpj}
-                                        onChange={(e) => setCpfCnpj(e.target.value)}
-                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm rounded"
                                     />
                                 </div>
                             </div>
@@ -264,38 +267,35 @@ export default function Cliente() {
                             </div>
 
                             {/* Pagination Controls */}
-                            {cliente.length > 0 ? (
-                                <div className="flex flex-col">
-                                    <div className="flex justify-center mt-6 space-x-4 p-2">
-                                        <button
-                                            onClick={handlePreviousPage}
-                                            disabled={currentPage === 0 || loading}
-                                            className={`px-4 py-2 rounded w-[50px] ${
-                                                currentPage === 0
-                                                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                                    : "bg-blue-500 text-white hover:bg-blue-600"
-                                            }`}
-                                        >
-                                            <ChevronLeft/>
-                                        </button>
-                                        <button
-                                            onClick={handleNextPage}
-                                            disabled={currentPage >= totalPages - 1 || loading}
-                                            className={`px-4 py-2 rounded w-[50px] ${
-                                                currentPage >= totalPages - 1
-                                                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                                    : "bg-blue-500 text-white hover:bg-blue-600"
-                                            }`}
-                                        >
-                                            <ChevronRight/>
-                                        </button>
-                                    </div>
-                                    <div className="flex justify-center">
-                                        <span className="text-gray-600">Página {currentPage+1} de {totalPages} | Total {totalElements}</span>
-                                    </div>
+                            <div className="flex flex-col mt-3 mb-3">
+                                <div className="flex justify-center mt-6 space-x-4 p-2">
+                                    <button
+                                        onClick={handlePreviousPage}
+                                        disabled={currentPage === 0 || loading}
+                                        className={`px-4 py-2 rounded w-[50px] ${
+                                            currentPage === 0
+                                                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                                : "bg-blue-500 text-white hover:bg-blue-600"
+                                        }`}
+                                    >
+                                        <ChevronLeft/>
+                                    </button>
+                                    <button
+                                        onClick={handleNextPage}
+                                        disabled={currentPage >= totalPages - 1 || loading}
+                                        className={`px-4 py-2 rounded w-[50px] ${
+                                            currentPage >= totalPages - 1
+                                                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                                : "bg-blue-500 text-white hover:bg-blue-600"
+                                        }`}
+                                    >
+                                        <ChevronRight/>
+                                    </button>
                                 </div>
-                                ) : <></>
-                            }
+                                <div className="flex justify-center">
+                                    <span className="text-gray-600">Página {currentPage+1} de {totalPages} | Total {totalElements}</span>
+                                </div>
+                            </div>
                         </div>
                     ) : (
                         <p className="text-center text-sm">Nenhum cliente encontrado.</p>
@@ -303,7 +303,7 @@ export default function Cliente() {
                     
                 </div>
             ) : (
-                <p>Você ainda não entrou, por favor entre no sistema</p>
+                <Disconected/>
             )}
         </div>
     );

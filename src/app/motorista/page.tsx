@@ -138,7 +138,7 @@ export default function Motorista() {
                                         placeholder={`nome`}
                                         value={nome}
                                         onChange={(e) => setNome(e.target.value)}
-                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm rounded"
                                     />
                                 </div>
                                 <div className="flex flex-col">
@@ -149,9 +149,22 @@ export default function Motorista() {
                                         placeholder={`placa`}
                                         value={placa}
                                         onChange={(e) => setPlaca(e.target.value)}
-                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm rounded"
                                     />
                                 </div>
+                                <div className="flex flex-col">
+                                    <label htmlFor="cdCpf" className="font-medium">CPF</label>
+                                    <input
+                                        id="cdCpf"
+                                        type="text"
+                                        placeholder={`cpf`}
+                                        value={cpf}
+                                        onChange={(e) => setCpf(e.target.value)}
+                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm rounded"
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex flex-row space-x-4 mt-5">
                                 <div className="flex flex-col">
                                     <label htmlFor="dsCidade" className="font-medium">Cidade</label>
                                     <input
@@ -160,7 +173,7 @@ export default function Motorista() {
                                         placeholder={`cidade`}
                                         value={cidade}
                                         onChange={(e) => setCidade(e.target.value)}
-                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm rounded"
                                     />
                                 </div>
                                 <div className="flex flex-col">
@@ -176,18 +189,7 @@ export default function Motorista() {
                                                 setEstado(value);
                                             }
                                         }}
-                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
-                                    />
-                                </div>
-                                <div className="flex flex-col">
-                                    <label htmlFor="cdCpf" className="font-medium">CPF</label>
-                                    <input
-                                        id="cdCpf"
-                                        type="text"
-                                        placeholder={`cpf`}
-                                        value={cpf}
-                                        onChange={(e) => setCpf(e.target.value)}
-                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm rounded"
                                     />
                                 </div>
                             </div>

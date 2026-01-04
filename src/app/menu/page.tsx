@@ -94,7 +94,7 @@ export default function Menu() {
                             <div className="flex flex-row justify-between">
                                 <div className="items-start justify-center">
                                     <h1 className="text-2xl font-bold mb-4">Contratos</h1>
-                                    <p className="mb-6 font-light">Últimos acessos</p>
+                                    <p className="mb-6 font-light">Acesso rápido</p>
                                 </div>
                                 {/* Search Bar */}
                                 <div className="relative flex items-center space-x-4 pb-5">
@@ -162,7 +162,6 @@ export default function Menu() {
                                                                 {contrato.cdContrato}
                                                             </h2>
                                                         </div>
-                                                        <p className="text-gray-600"><strong>Status:</strong> {contrato.dsStatus ?? ""}</p>
                                                         <p className="text-gray-600"><strong>Atualizado em:</strong> {contrato.dtInicial ? new Date(contrato.dtInicial).toLocaleDateString() : ""}</p>
                                                         <p className="text-gray-600"><strong>Grão:</strong> {contrato.mercadoria ?? ""}</p>
                                                         <p className="text-gray-600"><strong>Preço por saco:</strong> ${contrato.precoSaco ? contrato.precoSaco.toFixed(2) : ""}</p>

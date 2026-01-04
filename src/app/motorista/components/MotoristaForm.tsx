@@ -1,24 +1,49 @@
 'use client';
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { GetMotoristaById, MotoristaDto, PostMotorista } from "@/components/service/MotoristaService";
 import { SideBarComponent } from '@/components/menu/SideBar';
 import { Corretor } from '@/components/service/CorretorService';
-import { PostCorretor } from "@/components/service/CorretorService";
-import { Bank, GetBanks } from "@/components/service/BancoService";
-import { Select } from "@/components/utils/Search";
-import { Disconected } from "@/components/utils/Disconected";
-import { Loading } from "@/components/utils/Loading";
-import { UserCircle } from "lucide-react";
-import { estados } from "@/components/utils/EstadosBr";
+import { Disconected } from '@/components/utils/Disconected';
+import { Loading } from '@/components/utils/Loading';
+import { Tractor } from 'lucide-react';
+import { Select } from '@/components/utils/Search';
+import { estados } from '@/components/utils/EstadosBr';
 
-export default function Perfil() {
+export default function MotoristaForm(pageTitle: string, id?: string) {
     const router = useRouter();
-    const [loading, setLoading] = useState(false);
     const [corretor, setCorretor] = useState<Corretor | null>(null);
-    const [bancos, setBancos] = useState<Bank[]>([]);
+    const [motorista, setMotorista] = useState<MotoristaDto>({
+        dsTelefone: '',
+        dsContato: '',
+        cdCpf: '',
+        dsNome: '',
+        dsPlaca: '',
+        dsCidade: '',
+        dsEstado: '',
+    });
+    const [isEditing, setIsEditing] = useState(false);
+    const [loading, setLoading] = useState(false);
 
-    const [error, setError] = useState<string | null>(null);
-    const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    useEffect(() => {
+        const fetchMotorista = async () => {
+            setLoading(true);
+            try {
+                const data: MotoristaDto = await GetMotoristaById(id as string);
+                setMotorista(data);
+            } catch (error) {
+                console.error("Failed to fetch motorista:", error);
+                setError("Motorista não encontrado..");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if(id) {
+            fetchMotorista();
+        }
+
+    }, [id]);
 
     useEffect(() => {
         const storedData = localStorage.getItem('corretor');
@@ -27,46 +52,34 @@ export default function Perfil() {
             setCorretor(userData);
         }
     }, []);
-
-    useEffect(() => {
-        const fetchBancos = async () => {
-        const data = await GetBanks();
-        setBancos(data);
-        };
-        fetchBancos();
-    }, []);
-
-    const handleChangeCorretor = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { id, value } = e.target;
-        setCorretor((prev) => {
-            if (!prev) return prev;
-            return { ...prev, [id]: value };
-        });
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError(null);
-        setSuccessMessage(null);
-        setLoading(true);
-        try {
-            if(corretor) {
-                const resp = await PostCorretor(corretor);
-                setSuccessMessage("Informações atualizadas com sucesso!");
-                localStorage.setItem("corretor", JSON.stringify(resp));
-                setTimeout(() => {
-                    setSuccessMessage(null);
-                }, 6000);
-            }
-        } catch (error) {
-            setError("Servidor indisponível");
-            console.error(error);
-        } finally {
-            setLoading(false);
+    
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (motorista) {
+            setMotorista({
+                ...motorista,
+                [e.target.name]: e.target.value,
+            });
         }
     };
 
-    return(
+    const [error, setError] = useState<string | null>(null);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+    const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (motorista && !isEditing) {
+            setLoading(true);
+            await PostMotorista(motorista);
+            setIsEditing(true);
+            setSuccessMessage("Motorista atualizado com sucesso!");
+            setLoading(false);
+            setTimeout(() => {
+                setSuccessMessage(null);
+            }, 5000);
+        }
+    };
+
+    return (
         <div className="bg-[#FFF7E5] flex flex-row h-screen overflow-hidden">
             <SideBarComponent nome={corretor?.dsNome} />
             
@@ -78,8 +91,8 @@ export default function Perfil() {
                 <div className="flex flex-col w-full space-y-6 overflow-y-auto">
                     <div className="bg-white shadow-lg rounded-xl mt-10 p-10 space-y-5 m-10">
                         <div className="flex flex-row space-x-4 items-center">
-                            <UserCircle size={30}/>
-                            <big><h1 className="text-2xl font-semibold text-gray-800">Meu Perfil</h1></big>
+                            <Tractor size={30}/>
+                            <big><h1 className="text-2xl font-semibold text-gray-800">{pageTitle}</h1></big>
                         </div>
                         
 
@@ -99,7 +112,7 @@ export default function Perfil() {
                             </p>
                         )}
 
-                        <form onSubmit={handleSubmit} className="space-y-5">
+                        <form onSubmit={handleUpdate} className="space-y-5">
                             <div className='flex flex-col border-gray-400 border-2 p-4 rounded-md shadow-sm'>
                                 <span className='font-semibold mb-4'>Informações Pessoais</span>
                                 <div className="flex flex-row space-x-5 items-center">
@@ -109,8 +122,9 @@ export default function Perfil() {
                                             id='dsNome' 
                                             name='dsNome' 
                                             type="text" 
-                                            value={corretor.dsNome ?? ''} 
-                                            onChange={handleChangeCorretor}
+                                            value={motorista.dsNome ?? ''} 
+                                            onChange={handleChange}
+                                            required
                                         />
                                     </div>
                                     <div className='flex flex-col'>
@@ -118,90 +132,74 @@ export default function Perfil() {
                                         <input className='px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm transition' 
                                             id='cdCpf' 
                                             name='cdCpf' 
-                                            type="text" 
-                                            value={corretor.cdCpf ?? ''} 
-                                            maxLength={11} 
-                                            onChange={handleChangeCorretor}
+                                            type="text"
+                                            value={motorista.cdCpf ?? ''} 
+                                            maxLength={14} 
+                                            onChange={handleChange}
                                         />
                                     </div>
                                 </div>
                             </div>
                             <div className='flex flex-col border-gray-400 border-2 p-4 rounded-md shadow-sm'>
-                                <span className='font-semibold mb-4'>Localização</span>
+                                <span className='font-semibold mb-4'>Contato</span>
                                 <div className='flex flex-row space-x-5 items-center'>
+                                    <div className='flex flex-col'>
+                                        <label htmlFor="dsTelefone" className='mb-1 text-sm font-medium text-gray-700'>Telefone/WhatsApp</label>
+                                        <input className='px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm transition' 
+                                            id='dsTelefone' 
+                                            name='dsTelefone' 
+                                            type="number" 
+                                            value={motorista.dsTelefone ?? 0} 
+                                            maxLength={20}
+                                            onChange={handleChange}
+                                        />
+                                    </div>
+                                    <div className='flex flex-col'>
+                                        <label htmlFor="dsContato" className='mb-1 text-sm font-medium text-gray-700'>E-mail ou Telefone alternativo</label>
+                                        <input className='px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm transition' 
+                                            id='dsContato' 
+                                            name='dsContato' 
+                                            type="text" 
+                                            value={motorista.dsContato ?? ''} 
+                                            onChange={handleChange}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className='flex flex-col border-gray-400 border-2 p-4 rounded-md shadow-sm'>
+                                <span className='font-semibold mb-4'>Veículo e Localização</span>
+                                <div className='flex flex-row space-x-5 items-center'>
+                                    <div className='flex flex-col'>
+                                        <label htmlFor="dsPlaca" className='mb-1 text-sm font-medium text-gray-700'>Placa</label>
+                                        <input className='px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm transition' 
+                                            id='dsPlaca' 
+                                            name='dsPlaca' 
+                                            type="text" 
+                                            value={motorista.dsPlaca ?? ''} 
+                                            onChange={handleChange}
+                                        />
+                                    </div>
                                     <div className='flex flex-col'>
                                         <label htmlFor="dsCidade" className='mb-1 text-sm font-medium text-gray-700'>Cidade</label>
                                         <input className='px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm transition' 
                                             id='dsCidade' 
                                             name='dsCidade' 
                                             type="text" 
-                                            value={corretor.dsCidade ?? ''} 
-                                            onChange={handleChangeCorretor}
+                                            value={motorista.dsCidade ?? ''} 
+                                            onChange={handleChange}
                                         />
                                     </div>
                                     <div className='flex flex-col'>
                                         <label htmlFor="dsEstado" className='mb-1 text-sm font-medium text-gray-700'>Estado</label>
                                         <Select
                                             id="dsEstado"
-                                            options={estados}
-                                            value={corretor.dsEstado}
-                                            onChange={(estado: string) =>
-                                                setCorretor((prev) => {
-                                                    if(!prev) return prev;
-                                                    return { ...prev, dsEstado: estado}
-                                                })
-                                            }
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                            <div className='flex flex-col border-gray-400 border-2 p-4 rounded-md shadow-sm'>
-                                <span className='font-semibold mb-4'>Dados Bancários</span>
-                                <div className='flex flex-row space-x-5 items-center'>
-                                    <div className='flex flex-col'>
-                                        <label htmlFor="cdAgencia" className='mb-1 text-sm font-medium text-gray-700'>Agência</label>
-                                        <input className='px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm transition' 
-                                            id='cdAgencia' 
-                                            name='cdAgencia' 
-                                            type="text" 
-                                            value={corretor.cdAgencia ?? ''} 
-                                            onChange={handleChangeCorretor}
-                                        />
-                                    </div>
-                                    <div className='flex flex-col'>
-                                        <label htmlFor="cdConta" className='mb-1 text-sm font-medium text-gray-700'>Conta</label>
-                                        <input className='px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm transition' 
-                                            id='cdConta' 
-                                            name='cdConta' 
-                                            type="text" 
-                                            value={corretor.cdConta ?? ''} 
-                                            onChange={handleChangeCorretor}
-                                        />
-                                    </div>
-                                    <div className='flex flex-col'>
-                                        <label htmlFor="dsChavePix" className='mb-1 text-sm font-medium text-gray-700'>PIX <small>Opcional</small></label>
-                                        <input className='px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm transition' 
-                                            id='dsChavePix' 
-                                            name='dsChavePix' 
-                                            type="text" 
-                                            value={corretor.dsChavePix ?? ''} 
-                                            onChange={handleChangeCorretor}
-                                        />
-                                    </div>
-                                </div>
-                                <div className='flex flex-row space-x-5 items-center mt-4'>
-                                    <div className='flex flex-col'>
-                                        <label htmlFor="dsBanco" className='mb-1 text-sm font-medium text-gray-700'>Banco</label>
-                                        <Select
-                                            id="dsBanco"
-                                            width='w-[350px]'
-                                            options={bancos.map((banco) => banco.fullName)}
-                                            value={corretor.dsBanco}
-                                            onChange={(selectedBanco: string) =>
-                                                setCorretor((prev) => {
-                                                    if (!prev) return prev;
-                                                    return { ...prev, dsBanco: selectedBanco };
-                                                })
+                                            options={estados.map((estado) => estado)}
+                                            value={motorista.dsEstado}
+                                            onChange={(selectedEstado) =>
+                                                setMotorista((prev) => ({
+                                                    ...prev,
+                                                    dsEstado: selectedEstado,
+                                                }))
                                             }
                                         />
                                     </div>
@@ -223,7 +221,6 @@ export default function Perfil() {
                                     Salvar
                                 </button>
                             </div>
-                            
                         </form>
                     </div>
                 </div>
@@ -233,5 +230,5 @@ export default function Perfil() {
                 </>
             )}
         </div>
-    )
+    );
 }

@@ -3,9 +3,13 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Corretor } from '@/components/service/CorretorService';
 import { SideBarComponent } from '@/components/menu/SideBar';
-import { ChevronRight, ChevronLeft, Search, RefreshCcw, Edit } from "lucide-react";
-import { GetTableContratoView, TableContratoResponse, TableContrato } from "@/components/service/ContratoService";
-
+import { ChevronRight, ChevronLeft, Search, RefreshCcw, Trash2, CircleCheck, CircleX } from "lucide-react";
+import { GetTableContratoView, TableContratoResponse, TableContrato, DeleteContract } from "@/components/service/ContratoService";
+import Modal from '@/components/utils/Modal';
+import { Loading } from "@/components/utils/Loading";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { Disconected } from "@/components/utils/Disconected";
 
 export default function Contrato() {
     const router = useRouter();
@@ -13,6 +17,16 @@ export default function Contrato() {
     const [contratos, setContratos] = useState<TableContrato[]>([]);
 
     const [loading, setLoading] = useState(false);
+    const [loadingModal, setLoadingModal] = useState(false);
+    const [openDeleteModal, setOpenDeleteModal] = useState(false);
+
+    const [messageModal, setMessageModal] = useState<string | null>(null);
+    const [successModal, setSuccessModal] = useState(false);
+    const [errorModal, setErrorModal] = useState(false);
+    const [selectedContratoId, setSelectedContratoId] = useState<number | null>(null);
+
+    const [startDate, setStartDate] = useState<Date | null>(null);
+    const [endDate, setEndDate] = useState<Date | null>(null);
 
     const [cod, setCod] = useState('');
     const [status, setStatus] = useState('');
@@ -20,14 +34,13 @@ export default function Contrato() {
     const [mercadoria, setMercadoria] = useState('');
     const [vendedor, setVendedor] = useState('');
     const [preco, setPreco] = useState('');
-    const [dtContrato, setDtContrato] = useState('');
 
     const fetchContratosFilter = async () => {
         if (corretor?.cdCorretor != null) {
             setLoading(true);
             try {
                 const data: TableContratoResponse = await GetTableContratoView(corretor.cdCorretor, currentPage,
-                    cod, status, client, mercadoria, vendedor, preco, dtContrato
+                    cod, status, client, mercadoria, vendedor, preco, startDate, endDate
                 );
                 setContratos(data.content);
                 setTotalPages(data.page.totalPages);
@@ -47,10 +60,11 @@ export default function Contrato() {
         setMercadoria('');
         setVendedor('');
         setPreco('');
-        setDtContrato('');
+        setStartDate(null);
+        setEndDate(null);
         if (corretor?.cdCorretor != null) {
             const data: TableContratoResponse = await GetTableContratoView(corretor.cdCorretor, currentPage,
-                '', '', '', '', '', '', '');
+                '', '', '', '', '', '', null, null);
             setContratos(data.content);
             setTotalPages(data.page.totalPages);
             setTotalElements(data.page.totalElements);
@@ -75,7 +89,7 @@ export default function Contrato() {
                 setLoading(true);
                 try {
                     const data: TableContratoResponse = await GetTableContratoView(corretor.cdCorretor, currentPage,
-                        '', '', '', '', '', '', '');
+                        '', '', '', '', '', '', null, null);
                     setContratos(data.content);
                     setTotalPages(data.page.totalPages);
                     setTotalElements(data.page.totalElements);
@@ -102,6 +116,31 @@ export default function Contrato() {
             setCurrentPage((prev) => prev - 1);
         }
     };
+
+    const deleteContract = async (id: number) => {
+        setLoadingModal(true);
+        try {
+            await DeleteContract(id.toString());
+            setLoadingModal(false);
+            setSuccessModal(true);
+            setMessageModal("Contrato deletado!");
+        }catch(err) {
+            setLoadingModal(false);
+            console.log(err);
+            setErrorModal(true);
+            setMessageModal("Ocorreu um erro ao tentar deletar o contrato, tente novamente mais tarde");
+        }
+    } 
+
+     const onChange = (dates: [Date | null, Date | null]) => {
+        const [start, end] = dates;
+        setStartDate(start);
+        setEndDate(end);
+    };
+
+    const goToContract = (contrato: TableContrato) => {
+        router.push("/contrato/" + contrato.cdContrato);
+    }
 
     return (
         <div className="bg-[#FFF7E5] flex flex-row h-screen overflow-hidden">
@@ -154,24 +193,9 @@ export default function Contrato() {
                                         placeholder={`codigo`}
                                         value={cod}
                                         onChange={(e) => setCod(e.target.value)}
-                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm rounded"
                                     />
                                 </div>
-                                {/* 
-                                <div className="flex flex-col">
-                                    <label htmlFor="dsStatus">Status</label>
-                                    <select 
-                                        id="dsStatus"
-                                        value={status}
-                                        onChange={(e) => setStatus(e.target.value)}
-                                        className="w-[200px] px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
-                                    >
-                                        <option value=""></option>
-                                        <option value="OK">OK</option>
-                                        <option value="RASCUNHO">RASCUNHO</option>
-                                    </select>
-                                </div>
-                                 */}
                                 <div className="flex flex-col">
                                     <label htmlFor="dsCliente">Cliente</label>
                                     <input
@@ -180,7 +204,7 @@ export default function Contrato() {
                                         placeholder={`cliente`}
                                         value={client}
                                         onChange={(e) => setClient(e.target.value)}
-                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm rounded"
                                     />
                                 </div>
                                 <div className="flex flex-col">
@@ -191,7 +215,7 @@ export default function Contrato() {
                                         placeholder={`mercadoria`}
                                         value={mercadoria}
                                         onChange={(e) => setMercadoria(e.target.value)}
-                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm rounded"
                                     />
                                 </div>
                                 <div className="flex flex-col">
@@ -202,7 +226,7 @@ export default function Contrato() {
                                         placeholder={`vendedor`}
                                         value={vendedor}
                                         onChange={(e) => setVendedor(e.target.value)}
-                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm rounded"
                                     />
                                 </div>
                             </div>
@@ -211,28 +235,30 @@ export default function Contrato() {
                                     <label htmlFor="dsCliente">Preço/Saco</label>
                                     <input
                                         id="dsPreco"
-                                        type="text"
+                                        type="number"
                                         placeholder={`preço`}
                                         value={preco}
                                         onChange={(e) => setPreco(e.target.value)}
-                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm rounded"
                                     />
                                 </div>
                                 <div className="flex flex-col">
-                                    <label htmlFor="dsCliente">Data Contrato</label>
-                                    <input
-                                        id="dtData"
-                                        type="date"
-                                        placeholder={`data`}
-                                        value={dtContrato}
-                                        onChange={(e) => setDtContrato(e.target.value)}
-                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                                    <label htmlFor="dsCliente">Período</label>
+                                    <DatePicker
+                                        className="px-4 py-2 border-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm rounded"
+                                        onChange={onChange}
+                                        startDate={startDate}
+                                        endDate={endDate}
+                                        dateFormat="dd/MM/yyyy"
+                                        placeholderText="Pesquise por período"
+                                        selectsRange
+                                        isClearable
                                     />
                                 </div>
                                 <div className="flex flex-col mt-[22px]">
                                     <button 
                                         type="submit" 
-                                        className="space-x-2 flex flex-row bg-blue-700 hover:bg-blue-800 px-4 py-2 text-white"
+                                        className="space-x-2 flex flex-row bg-blue-700 hover:bg-blue-800 px-4 py-2 text-white rounded"
                                         onClick={() => fetchContratosFilter()}
                                     >
                                         <p className="">Buscar</p>
@@ -242,7 +268,7 @@ export default function Contrato() {
                                 <div className="flex flex-col mt-[22px]">
                                     <button 
                                         type="submit" 
-                                        className="space-x-2 flex flex-row bg-orange-500 hover:bg-yellow-800 px-4 py-2 text-white"
+                                        className="space-x-2 flex flex-row bg-orange-500 hover:bg-yellow-800 px-4 py-2 text-white rounded"
                                         onClick={() => refreshFilter()}
                                     >
                                         <p>Limpar</p>
@@ -268,66 +294,126 @@ export default function Contrato() {
                                             <th className="px-6 py-3 border-b text-left">Vendedor</th>
                                             <th className="px-6 py-3 border-b text-left">Preço/Saco</th>
                                             <th className="px-6 py-3 border-b text-left">Motorista</th>
-                                            <th className="px-6 py-3 border-b text-left">Editar</th>
+                                            <th className="px-6 py-3 border-b text-left">Ações</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {contratos.map((contrato) => (
-                                            <tr key={contrato.cdContrato} className="border-b items-center">
-                                                <td className="px-6 py-4">{contrato.cdContrato}</td>
-                                                <td className="px-6 py-4">{contrato.dtContrato ? contrato.dtContrato : "" }</td>
-                                                <td className="px-6 py-4">{contrato.mercadoria?.dsMercadoria === null ? "" : contrato.mercadoria?.dsMercadoria}</td>
-                                                <td className="px-6 py-4">{contrato.comprador?.dsNome}</td>
-                                                <td className="px-6 py-4">{contrato.vendedor?.dsNome}</td>
-                                                <td className="px-6 py-4">${contrato.precoSaco === null ? "" : contrato.precoSaco?.toFixed(2)}</td>
-                                                <td className="px-6 py-4">{contrato.motorista?.dsNome}</td>
-                                                <td className="px-10 py-4 items-center">
-                                                    <button type="button" onClick={(e) => {
-                                                        e.preventDefault();
-                                                        router.push("/contrato/" + contrato.cdContrato);
-                                                    }}>
-                                                        <Edit/>
-                                                    </button>
+                                            <tr key={contrato.cdContrato} className="border-b items-center hover:bg-gray-200">
+                                                <td className="px-6 py-4 cursor-pointer" onClick={e => {e.preventDefault(); goToContract(contrato);}}>{contrato.cdContrato}</td>
+                                                <td className="px-6 py-4 cursor-pointer" onClick={e => {e.preventDefault(); goToContract(contrato);}}>{contrato.dtContrato ? contrato.dtContrato : "" }</td>
+                                                <td className="px-6 py-4 cursor-pointer" onClick={e => {e.preventDefault(); goToContract(contrato);}}>{contrato.mercadoria?.dsMercadoria === null ? "" : contrato.mercadoria?.dsMercadoria}</td>
+                                                <td className="px-6 py-4 cursor-pointer" onClick={e => {e.preventDefault(); goToContract(contrato);}}>{contrato.comprador?.dsNome}</td>
+                                                <td className="px-6 py-4 cursor-pointer" onClick={e => {e.preventDefault(); goToContract(contrato);}}>{contrato.vendedor?.dsNome}</td>
+                                                <td className="px-6 py-4 cursor-pointer" onClick={e => {e.preventDefault(); goToContract(contrato);}}>${contrato.precoSaco === null ? "" : contrato.precoSaco?.toFixed(2)}</td>
+                                                <td className="px-6 py-4 cursor-pointer" onClick={e => {e.preventDefault(); goToContract(contrato);}}>{contrato.motorista?.dsNome}</td>
+                                                <td className="px-10 py-4 flex justify-center items-center">
+                                                    <div className="flex flex-row gap-5">
+                                                        <button type="button" onClick={() => {setOpenDeleteModal(true); setSelectedContratoId(contrato.cdContrato!)}}>
+                                                            <Trash2/>
+                                                        </button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         ))}
                                     </tbody>
                                 </table>
                             </div>
+                            <Modal
+                                open={openDeleteModal}
+                                onClose={() => {
+                                    setOpenDeleteModal(false);
+                                    setSelectedContratoId(null);
+                                    setSuccessModal(false);
+                                    setErrorModal(false);
+                                }}
+                                >
+                                <div className="w-[500px] h-[300px] flex flex-col justify-center items-center gap-4">
+                                    {loadingModal ? (
+                                    <Loading />
+                                    ) : (
+                                    <>
+                                        {!successModal && !errorModal && (
+                                        <>
+                                            <Trash2 className="text-red-400" size={40} />
+                                            <h1 className="text-xl font-bold">
+                                                Tem certeza que deseja deletar o contrato {selectedContratoId}?
+                                            </h1>
+                                            <div className="flex gap-4">
+                                                <button
+                                                    className="w-[85px] h-[40px] bg-gray-400 rounded text-white font-semibold"
+                                                    onClick={() => setOpenDeleteModal(false)}
+                                                >
+                                                    Cancelar
+                                                </button>
+                                                <button
+                                                    className="w-[85px] h-[40px] bg-red-400 rounded text-white font-semibold"
+                                                    onClick={() => deleteContract(selectedContratoId!)}
+                                                >
+                                                    Sim
+                                                </button>
+                                            </div>
+                                        </>
+                                        )}
+
+                                        {successModal && (
+                                        <>
+                                            <CircleCheck className="text-green-400" size={40} />
+                                            <h1 className="text-xl font-bold">{messageModal}</h1>
+                                            <button
+                                                className="w-[85px] h-[40px] bg-gray-400 rounded text-white font-semibold"
+                                                onClick={() => {setOpenDeleteModal(false); setErrorModal(false); setSuccessModal(false); refreshFilter();}}>
+                                                Ok
+                                            </button>
+                                        </>
+                                        )}
+
+                                        {errorModal && (
+                                        <>
+                                            <CircleX className="text-red-400" size={40} />
+                                            <h1 className="text-xl font-bold">{messageModal}</h1>
+                                            <button
+                                                className="w-[85px] h-[40px] bg-gray-400 rounded text-white font-semibold"
+                                                onClick={() => {setOpenDeleteModal(false); setErrorModal(false); setSuccessModal(false);}}>
+                                                Ok
+                                            </button>
+                                        </>
+                                        )}
+                                    </>
+                                    )}
+                                </div>
+                            </Modal>
 
                             {/* Pagination Controls */}
-                            {contratos.length > 0 ? (
-                                <div className="flex flex-col">
-                                    <div className="flex justify-center mt-6 space-x-4 p-2">
-                                        <button
-                                            onClick={handlePreviousPage}
-                                            disabled={currentPage === 0 || loading}
-                                            className={`px-4 py-2 rounded w-[50px] ${
-                                                currentPage === 0
-                                                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                                    : "bg-blue-500 text-white hover:bg-blue-600"
-                                            }`}
-                                        >
-                                            <ChevronLeft/>
-                                        </button>
-                                        <button
-                                            onClick={handleNextPage}
-                                            disabled={currentPage >= totalPages - 1 || loading}
-                                            className={`px-4 py-2 rounded w-[50px] ${
-                                                currentPage >= totalPages - 1
-                                                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                                    : "bg-blue-500 text-white hover:bg-blue-600"
-                                            }`}
-                                        >
-                                            <ChevronRight/>
-                                        </button>
-                                    </div>
-                                    <div className="flex justify-center">
-                                        <span className="text-gray-600">Página {currentPage+1} de {totalPages} | Total {totalElements}</span>
-                                    </div>
+                            <div className="flex flex-col mt-3 mb-3">
+                                <div className="flex justify-center mt-6 space-x-4 p-2">
+                                    <button
+                                        onClick={handlePreviousPage}
+                                        disabled={currentPage === 0 || loading}
+                                        className={`px-4 py-2 rounded w-[50px] ${
+                                            currentPage === 0
+                                                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                                : "bg-blue-500 text-white hover:bg-blue-600"
+                                        }`}
+                                    >
+                                        <ChevronLeft/>
+                                    </button>
+                                    <button
+                                        onClick={handleNextPage}
+                                        disabled={currentPage >= totalPages - 1 || loading}
+                                        className={`px-4 py-2 rounded w-[50px] ${
+                                            currentPage >= totalPages - 1
+                                                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                                : "bg-blue-500 text-white hover:bg-blue-600"
+                                        }`}
+                                    >
+                                        <ChevronRight/>
+                                    </button>
                                 </div>
-                                ) : <></>
-                            }
+                                <div className="flex justify-center">
+                                    <span className="text-gray-600">Página {currentPage+1} de {totalPages} | Total {totalElements}</span>
+                                </div>
+                            </div>
                         </div>
                     ) : (
                         <p className="text-center text-sm">Nenhum contrato encontrado.</p>
@@ -335,7 +421,7 @@ export default function Contrato() {
                     
                 </div>
             ) : (
-                <p>Você ainda não entrou, por favor entre no sistema</p>
+                <Disconected/>
             )}
         </div>
     );

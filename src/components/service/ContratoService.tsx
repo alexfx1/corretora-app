@@ -1,4 +1,5 @@
 import { ClienteDto } from "./ClienteService";
+import { Corretor } from "./CorretorService";
 import { MotoristaDto } from "./MotoristaService";
 
 export interface CardContrato {
@@ -16,7 +17,7 @@ export interface CardContratoResponse {
 }
 
 export interface TableContrato {
-    cdContrato?: number;
+    cdContrato: number;
     cdCorretor: number;
     comprador?: ClienteDto;
     vendedor?: ClienteDto;
@@ -44,7 +45,7 @@ export interface TableContrato {
 }
 
 export interface ContratoDto {
-    cdContrato?: number;
+    cdContrato: number;
     cdCorretor: number;
     comprador: ClienteDto;
     vendedor: ClienteDto;
@@ -104,7 +105,7 @@ export async function GetCardsContratoView(cdCorretor: number, searchTerm?: stri
 
 export async function GetTableContratoView(cdCorretor: number, page: number,
     cdCod: string, dsStatus: string, dsCliente: string, dsMercadoria: string, 
-    dsVendedor: string, vlPreco: string, dtContrato: string): Promise<TableContratoResponse> {
+    dsVendedor: string, vlPreco: string, startDate: Date | null, endDate: Date | null): Promise<TableContratoResponse> {
     try {
         const call = baseUrl + "/table/" + cdCorretor + "?page=" + page + "&pageSize=" + 10;
         
@@ -127,8 +128,8 @@ export async function GetTableContratoView(cdCorretor: number, page: number,
         if(vlPreco) {
             url += "&preco=" + vlPreco;
         }
-        if(dtContrato) {
-            url += "&dtContrato=" + dtContrato.replace(/\//g, '-');
+        if(startDate && endDate) {
+            url += "&dtPeriod=" + `${startDate.toLocaleDateString('pt-BR')}-${endDate.toLocaleDateString('pt-BR')}`;
         }
 
         const response: Response = await fetch(url);
@@ -187,4 +188,59 @@ export async function SaveContrato(body: TableContrato, id?: string): Promise<Ta
         console.error("Failed to save the contract:", error);
         throw error instanceof Error ? error : new Error("An unexpected error occurred");
     }
+}
+
+export async function DownloadContract(id: string, corretor: Corretor) {
+  try {
+    const url = `${baseUrl}/${id}/pdf`;
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/pdf",
+      },
+      body: JSON.stringify(corretor),
+    });
+
+    if (!response.ok) {
+      const errorDetails = await response.text();
+      throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorDetails}`);
+    }
+
+    const blob = await response.blob();
+
+    const downloadUrl = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = downloadUrl;
+    link.download = `contrato-${id}.pdf`;
+    document.body.appendChild(link);
+
+    link.click();
+
+    link.remove();
+    window.URL.revokeObjectURL(downloadUrl);
+
+  } catch (error: unknown) {
+    console.error("Failed to download the contract:", error);
+    throw error instanceof Error ? error : new Error("An unexpected error occurred");
+  }
+}
+
+export async function DeleteContract(id: string) {
+  try {
+    const url = `${baseUrl}/${id}`;
+
+    await fetch(url, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      }
+    });
+
+  } catch (error: unknown) {
+    console.error("Failed to delete the contract:", error);
+    throw error instanceof Error ? error : new Error("An unexpected error occurred");
+  }
 }
