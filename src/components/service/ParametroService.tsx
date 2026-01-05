@@ -1,4 +1,5 @@
-const url = "http://localhost:8099/ms-corretora/parametro";
+const baseUrl = process.env.NEXT_PUBLIC_CORRETOR_API_URL;
+const url = `${baseUrl}/parametro`;
 
 export interface ParametroDto {
     cdParametro: number;

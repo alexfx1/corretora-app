@@ -2,6 +2,8 @@ import { ClienteDto } from "./ClienteService";
 import { Corretor } from "./CorretorService";
 import { MotoristaDto } from "./MotoristaService";
 
+const envUrl = process.env.NEXT_PUBLIC_CORRETOR_API_URL;
+
 export interface CardContrato {
     cdContrato: number;
     dsStatus: string;
@@ -83,7 +85,7 @@ export interface PageObjectResponse {
     totalPages: number
 }
 
-const baseUrl = process.env.NEXT_PUBLIC_CORRETOR_API_URL || "http://localhost:8099/ms-corretora/contrato";
+const baseUrl = `${envUrl}/contrato`;
 
 export async function GetCardsContratoView(cdCorretor: number, searchTerm?: string): Promise<CardContratoResponse> {
     try {

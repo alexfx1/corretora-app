@@ -1,6 +1,5 @@
-
-
-const url = "http://localhost:8099/ms-corretora/mercadoria";
+const baseUrl = process.env.NEXT_PUBLIC_CORRETOR_API_URL;
+const url = `${baseUrl}/mercadoria`;
 
 export interface MercadoriaDto {
     nome: string;

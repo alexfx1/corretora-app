@@ -1,5 +1,7 @@
 import { PageObjectResponse } from '@/components/service/ContratoService';
 
+const baseUrl = process.env.NEXT_PUBLIC_CORRETOR_API_URL;
+
 export interface ClienteDto {
     cdCliente?: number;
     dsTelefone: string;
@@ -22,7 +24,7 @@ export interface TableClienteResponse {
     content: ClienteDto[]
 }
 
-const url = "http://localhost:8099/ms-corretora/cliente";
+const url = `${baseUrl}/cliente`;
 
 export async function GetAllClients(): Promise<ClienteDto[]> {
     try {

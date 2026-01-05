@@ -16,7 +16,8 @@ export interface TableMotoristaResponse {
     page: PageObjectResponse
 }
 
-const url = "http://localhost:8099/ms-corretora/motorista";
+const baseUrl = process.env.NEXT_PUBLIC_CORRETOR_API_URL;
+const url = `${baseUrl}/motorista`;
 
 export async function GetAllMotorista() : Promise<MotoristaDto[]> {
     try {

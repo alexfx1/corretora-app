@@ -9,8 +9,8 @@ export interface Corretor {
     dsEstado: string;
     dsChavePix?: string;
 }
-
-const baseUrl = process.env.NEXT_PUBLIC_CORRETOR_API_URL || "http://localhost:8099/ms-corretora/corretor";
+const envUrl = process.env.NEXT_PUBLIC_CORRETOR_API_URL;
+const baseUrl = `${envUrl}/corretor`;
 
 /**
 * Fetches all corretores from the backend.
