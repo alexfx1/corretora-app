@@ -233,10 +233,7 @@ export default function Cliente() {
                                             <th className="px-6 py-3 border-b text-left">CPF/CNPJ</th>
                                             <th className="px-6 py-3 border-b text-left">Cidade</th>
                                             <th className="px-6 py-3 border-b text-left">INS/IR</th>
-                                            <th className="px-6 py-3 border-b text-left">Chave PIX</th>
-                                            <th className="px-6 py-3 border-b text-left">Banco</th>
-                                            <th className="px-6 py-3 border-b text-left">Agencia</th>
-                                            <th className="px-6 py-3 border-b text-left">Conta</th>
+                                            <th className="px-6 py-3 border-b text-left">Chave Pix</th>
                                             <th className="px-6 py-3 border-b text-left">Editar</th>
                                         </tr>
                                     </thead>
@@ -248,10 +245,12 @@ export default function Cliente() {
                                                 <td className="px-6 py-4">{cliente.cdCpfCnpj}</td>
                                                 <td className="px-6 py-4">{cliente.dsCidade === null ? '' : cliente.dsCidade}</td>
                                                 <td className="px-6 py-4">{cliente.dsIns === null ? '' : cliente.dsIns}</td>
-                                                <td className="px-6 py-4">{cliente.dsChavePix === null ? '' : cliente.dsChavePix}</td>
-                                                <td className="px-6 py-4">{cliente.dsBanco === null ? '' : cliente.dsBanco}</td>
-                                                <td className="px-6 py-4">{cliente.cdAgencia === null ? '' : cliente.cdAgencia}</td>
-                                                <td className="px-6 py-4">{cliente.cdConta === null ? '' : cliente.cdConta}</td>
+                                                <td className="px-6 py-4 max-w-[158px]">
+                                                    <div className="break-all line-clamp-4 leading-relaxed" title={cliente.dsChavePix ?? ''}
+                                                    >
+                                                        {cliente.dsChavePix ?? ''}
+                                                    </div>
+                                                </td>
                                                 <td className="px-10 py-4 items-center">
                                                     <button type="button" onClick={(e) => {
                                                         e.preventDefault();
