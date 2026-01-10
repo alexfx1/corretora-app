@@ -33,6 +33,7 @@ export interface TableContrato {
     vlQuantidadeSaco?: number,
     precoSaco?: number;
     vlKilo?: number;
+    vlComissao?: number;
     dsPadraoTolerancia?: string;
     dsArmazenagem?: string;
     dsEnderecoEntrega?: string;
@@ -61,6 +62,7 @@ export interface ContratoDto {
     vlQuantidadeSaco: number,
     precoSaco: number;
     vlKilo: number;
+    vlComissao?: number;
     dsPadraoTolerancia: string;
     dsArmazenagem: string;
     dsEnderecoEntrega: string;

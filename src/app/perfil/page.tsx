@@ -179,7 +179,7 @@ export default function Perfil() {
                                         />
                                     </div>
                                     <div className='flex flex-col'>
-                                        <label htmlFor="dsChavePix" className='mb-1 text-sm font-medium text-gray-700'>PIX <small>Opcional</small></label>
+                                        <label htmlFor="dsChavePix" className='mb-1 text-sm font-medium text-gray-700'>PIX</label>
                                         <input className='px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm transition' 
                                             id='dsChavePix' 
                                             name='dsChavePix' 

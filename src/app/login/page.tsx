@@ -207,20 +207,32 @@ export default function Login() {
                                     {errorCnpj && <p className="text-red-600 text-sm mt-1">{errorCnpj}</p>}
                                 </div>
                             </div>
-                            <div className='flex flex-col'>
-                                <label htmlFor="dsBanco" className='mb-1 text-sm font-medium text-gray-700'>Banco</label>
-                                <Select
-                                    id="dsBanco"
-                                    options={bancos.map((bank) => bank.fullName)}
-                                    value={corretor.dsBanco}
-                                    width='w-full'
-                                    onChange={(selectedBanco) =>
-                                        setCorretor((prev) => ({
-                                            ...prev,
-                                            dsBanco: selectedBanco,
-                                        }))
-                                    }
-                                />
+                            <div className="flex flex-row gap-1">
+                                <div className='flex flex-col'>
+                                    <label htmlFor="dsBanco" className='mb-1 text-sm font-medium text-gray-700'>Banco</label>
+                                    <Select
+                                        id="dsBanco"
+                                        options={bancos.map((bank) => bank.fullName)}
+                                        value={corretor.dsBanco}
+                                        width='w-full'
+                                        onChange={(selectedBanco) =>
+                                            setCorretor((prev) => ({
+                                                ...prev,
+                                                dsBanco: selectedBanco,
+                                            }))
+                                        }
+                                    />
+                                </div>
+                                <div className='flex flex-col w-full'>
+                                    <label htmlFor="dsChavePix" className='mb-1 text-sm font-medium text-gray-700'>PIX</label>
+                                    <input className='px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm transition' 
+                                        id='dsChavePix' 
+                                        name='dsChavePix' 
+                                        type="text" 
+                                        value={corretor.dsChavePix}
+                                        onChange={handleChange}
+                                    />
+                                </div>
                             </div>
                             <div className="flex flex-row gap-1">
                                 <div className='flex flex-col w-full'>

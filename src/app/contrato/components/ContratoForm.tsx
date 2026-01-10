@@ -7,7 +7,7 @@ import { ClienteDto, GetAllClients } from "@/components/service/ClienteService";
 import { SideBarComponent } from '@/components/menu/SideBar';
 import { Corretor } from '@/components/service/CorretorService';
 import { Bank, GetBanks } from "@/components/service/BancoService";
-import { estados } from '@/components/utils/EstadosBr';
+import { estados, pagamentos } from '@/components/utils/EstadosBr';
 import { Disconected } from '@/components/utils/Disconected';
 import { Loading } from '@/components/utils/Loading';
 import { FilePenLine, RefreshCcw, Pencil } from "lucide-react";
@@ -58,6 +58,7 @@ export default function ContratoForm(pageTitle: string, id?: string) {
     }
 
     const [showDownload, setShowDownload] = useState(false);
+    const [showPixKeyField, setShowPixKeyField] = useState(false);
 
     const [buttonClients, setButtonClients] = useState(false);
     const [buttonMotoristas, setButtonMotoristas] = useState(false);
@@ -106,7 +107,8 @@ export default function ContratoForm(pageTitle: string, id?: string) {
         vlQuantidade: 0,
         vlQuantidadeSaco: 0,
         precoSaco: 0,
-        vlKilo: 0,
+        vlKilo: 60,
+        vlComissao: 0,
         dsPadraoTolerancia: '',
         dsArmazenagem: '',
         dsEnderecoEntrega: '',
@@ -168,6 +170,9 @@ export default function ContratoForm(pageTitle: string, id?: string) {
                     parseContractInfo(contratoData);
                     setContrato(contratoData);
                     setShowDownload(true);
+                    if(contratoData.dsFormaPagamento && contratoData.dsFormaPagamento.toLowerCase() === "pix") {
+                        setShowPixKeyField(true); 
+                    }
                 } else {
                     const description = descriptions.find(obs => obs.dsChaveParametro === 'DESCRICAO_CONTRATO');
                     const padraoTolerancia = descriptions.find(obs => obs.dsChaveParametro === 'PADRAO_TOLERANCIA');
@@ -235,10 +240,16 @@ export default function ContratoForm(pageTitle: string, id?: string) {
         setContrato((prev) => {
             const updated = { ...prev, [id]: value };
 
-            if (id === "vlQuantidadeSaco" || id === "vlKilo") {
-                const quantidadeSaco = Number(updated.vlQuantidadeSaco) || 0;
+            if (id === "vlQuantidade" || id === "vlKilo") {
+                const quantidade = Number(updated.vlQuantidade) || 0;
                 const kilo = Number(updated.vlKilo) || 0;
-                updated.vlQuantidade = quantidadeSaco * kilo;
+                updated.vlQuantidadeSaco = quantidade / kilo;
+
+                if (quantidade > 0 && kilo > 0) {
+                    updated.vlQuantidadeSaco = Number((quantidade / kilo).toFixed(2));
+                } else {
+                    updated.vlQuantidadeSaco = 0;
+                }
             }
 
             return updated;
@@ -462,7 +473,6 @@ export default function ContratoForm(pageTitle: string, id?: string) {
                                                             {clients.filter((cliente) => cliente.dsNome.toLowerCase().includes(searchComprador.toLowerCase())).map((cliente) => (
                                                                 <tr key={cliente.cdCliente} className='items-center hover:bg-gray-300 cursor-pointer' 
                                                                         onClick={() => {setComprador(cliente); setOpenComprador(false); setSearchComprador("");}}>
-                                                                    <td className="px-6 py-4">{cliente.cdCliente}</td>
                                                                     <td className="px-6 py-4">{cliente.dsNome}</td>
                                                                 </tr>
                                                             ))}
@@ -582,7 +592,6 @@ export default function ContratoForm(pageTitle: string, id?: string) {
                                                             {clients.filter((cliente) => cliente.dsNome.toLowerCase().includes(searchVendedor.toLowerCase())).map((cliente) => (
                                                                 <tr key={cliente.cdCliente} className='items-center hover:bg-gray-300 cursor-pointer' 
                                                                         onClick={() => {setVendedor(cliente); setOpenVendedor(false); setSearchVendedor("");}}>
-                                                                    <td className="px-6 py-4">{cliente.cdCliente}</td>
                                                                     <td className="px-6 py-4">{cliente.dsNome}</td>
                                                                 </tr>
                                                             ))}
@@ -702,7 +711,6 @@ export default function ContratoForm(pageTitle: string, id?: string) {
                                                             {motoristas.filter((motorista) => motorista.dsNome.toLowerCase().includes(searchMotorista.toLowerCase())).map((motorista) => (
                                                                 <tr key={motorista.cdMotorista} className='items-center hover:bg-gray-300 cursor-pointer' 
                                                                         onClick={() => {setMotorista(motorista); setOpenMotorista(false); setSearchMotorista("");}}>
-                                                                    <td className="px-6 py-4">{motorista.cdMotorista}</td>
                                                                     <td className="px-6 py-4">{motorista.dsNome}</td>
                                                                 </tr>
                                                             ))}
@@ -845,33 +853,33 @@ export default function ContratoForm(pageTitle: string, id?: string) {
                                 </div>
                                 <div className="flex flex-row space-x-5 items-center mt-4">
                                     <div className='flex flex-col'>
-                                        <label htmlFor="vlQuantidadeSaco" className='mb-1 text-sm font-medium text-gray-700'>Quantidade de Sacos</label>
-                                        <input className='px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm transition' 
-                                            id='vlQuantidadeSaco' 
-                                            name='vlQuantidadeSaco' 
-                                            type="number" 
-                                            value={contrato.vlQuantidadeSaco ? contrato.vlQuantidadeSaco : 0} 
-                                            onChange={handleChangeContrato}
-                                        />
-                                    </div>
-                                    <div className='flex flex-col'>
-                                        <label htmlFor="vlKilo" className='mb-1 text-sm font-medium text-gray-700'>Quilo Saco (KG)</label>
-                                        <input className='px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm transition' 
-                                            id='vlKilo' 
-                                            name='vlKilo' 
-                                            type="number" 
-                                            value={contrato.vlKilo ? contrato.vlKilo : 0} 
-                                            onChange={handleChangeContrato}
-                                        />
-                                    </div>
-                                    <div className='flex flex-col'>
-                                        <label htmlFor="vlQuantidade" className='mb-1 text-sm font-medium text-gray-700'>A quantidade será de</label>
-                                        <input
-                                            className='font-bold px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm transition bg-gray-100'
+                                        <label htmlFor="vlQuantidade" className='mb-1 text-sm font-medium text-gray-700'>Quantidade</label>
+                                        <input className='px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm transition'
                                             id='vlQuantidade'
                                             name='vlQuantidade'
                                             type="number"
                                             value={contrato.vlQuantidade}
+                                            onChange={handleChangeContrato}
+                                        />
+                                    </div>
+                                    <div className='flex flex-col'>
+                                        <label htmlFor="vlQuantidadeSaco" className='mb-1 text-sm font-medium text-gray-700'>Scs.</label>
+                                        <input className='cursor-not-allowed px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm transition bg-gray-100' 
+                                            id='vlQuantidadeSaco' 
+                                            name='vlQuantidadeSaco' 
+                                            type="number" 
+                                            value={contrato.vlQuantidadeSaco || 0} 
+                                            onChange={handleChangeContrato}
+                                            readOnly
+                                        />
+                                    </div>
+                                    <div className='flex flex-col'>
+                                        <label htmlFor="vlKilo" className='mb-1 text-sm font-medium text-gray-700'>Kgs.</label>
+                                        <input className='cursor-not-allowed px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm transition bg-gray-100' 
+                                            id='vlKilo' 
+                                            name='vlKilo' 
+                                            type="number" 
+                                            value={contrato.vlKilo ?? 60} 
                                             onChange={handleChangeContrato}
                                             readOnly
                                         />
@@ -919,19 +927,52 @@ export default function ContratoForm(pageTitle: string, id?: string) {
                                             value={formatCurrency(contrato.precoSaco || 0)}
                                             onChange={handleCurrencyChangeContrato}
                                             placeholder="0,00"
-                                            required
                                         />
                                     </div>
                                     <div className='flex flex-col'>
-                                        <label htmlFor="dsPagamento" className='mb-1 text-sm font-medium text-gray-700'>Pagamento</label>
-                                        <input className='w-fit px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm transition' 
-                                            id="dsPagamento"
-                                            name="dsPagamento"
-                                            type="text"
-                                            value={contrato.dsPagamento ? contrato.dsPagamento : ''}
-                                            onChange={handleChangeContrato}
+                                        <label htmlFor="dsFormaPagamento" className='mb-1 text-sm font-medium text-gray-700'>Forma de Pagamento</label>
+                                        <Select
+                                            id="dsFormaPagamento"
+                                            options={pagamentos}
+                                            value={contrato.dsFormaPagamento ? contrato.dsFormaPagamento : ""}
+                                            onChange={(pg) => {
+                                                    setContrato((prev) => ({
+                                                        ...prev,
+                                                        dsFormaPagamento: pg,
+                                                    }));
+                                                    if(pg.toLowerCase() === "pix") {
+                                                        setShowPixKeyField(true);
+                                                    } else {
+                                                        setShowPixKeyField(false);
+                                                    }
+                                                }
+                                            }
+                                            onInput={(e) => {
+                                                const variable = e.target.value as string;
+                                                setContrato((prev) => ({
+                                                    ...prev,
+                                                    dsFormaPagamento: variable,
+                                                }));
+                                                if(variable.toLowerCase() === "pix") {
+                                                    setShowPixKeyField(true);
+                                                } else {
+                                                    setShowPixKeyField(false);
+                                                }
+                                            }}
                                         />
                                     </div>
+                                    { showPixKeyField && <>
+                                        <div className='flex flex-col'>
+                                            <label htmlFor="dsChavePix" className='mb-1 text-sm font-medium text-gray-700'>Chave Pix *<small>favorecido</small></label>
+                                            <input className='w-fit px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm transition' 
+                                                id="dsChavePix"
+                                                name="dsChavePix"
+                                                type="text"
+                                                value={vendedor.dsChavePix ? vendedor.dsChavePix : ''}
+                                                onChange={handleChangeVendedor}
+                                            />
+                                        </div>
+                                    </>}
                                 </div>
                                 <div className="flex flex-row space-x-5 mt-4">
                                     <div className='flex flex-col'>
@@ -945,12 +986,12 @@ export default function ContratoForm(pageTitle: string, id?: string) {
                                         />
                                     </div>
                                     <div className='flex flex-col'>
-                                        <label htmlFor="dsFormaPagamento" className='mb-1 text-sm font-medium text-gray-700'>Forma de Pagamento</label>
-                                        <input className='px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm transition' 
-                                            id="dsFormaPagamento"
-                                            name="dsFormaPagamento"
+                                        <label htmlFor="dsPagamento" className='mb-1 text-sm font-medium text-gray-700'>Pagamento</label>
+                                        <input className='w-fit px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm transition' 
+                                            id="dsPagamento"
+                                            name="dsPagamento"
                                             type="text"
-                                            value={contrato.dsFormaPagamento ? contrato.dsFormaPagamento : ''}
+                                            value={contrato.dsPagamento ? contrato.dsPagamento : ''}
                                             onChange={handleChangeContrato}
                                         />
                                     </div>
@@ -998,7 +1039,7 @@ export default function ContratoForm(pageTitle: string, id?: string) {
                                         />
                                     </div>
                                     <div className='flex flex-col'>
-                                        <label htmlFor="cdAgencia" className='mb-1 text-sm font-medium text-gray-700'>Agencia</label>
+                                        <label htmlFor="cdAgencia" className='mb-1 text-sm font-medium text-gray-700'>Agencia *<small>favorecido</small></label>
                                         <input className='px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm transition' 
                                             id='cdAgencia' 
                                             name='cdAgencia' 
@@ -1008,7 +1049,7 @@ export default function ContratoForm(pageTitle: string, id?: string) {
                                         />
                                     </div>
                                     <div className='flex flex-col'>
-                                        <label htmlFor="cdConta" className='mb-1 text-sm font-medium text-gray-700'>Conta</label>
+                                        <label htmlFor="cdConta" className='mb-1 text-sm font-medium text-gray-700'>Conta *<small>favorecido</small></label>
                                         <input className='px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm transition' 
                                             id='cdConta' 
                                             name='cdConta' 
@@ -1031,6 +1072,19 @@ export default function ContratoForm(pageTitle: string, id?: string) {
                                     </button>
                                 </div>
                                 <div className="flex flex-row space-x-5">
+                                    <div className='flex flex-col'>
+                                        <label htmlFor="vlComissao" className='mb-1 text-sm font-bold text-gray-700'>Valor da Comissão</label>
+                                        <input className='w-[410px] font-bold px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm transition' 
+                                            id="vlComissao"
+                                            name="vlComissao"
+                                            type="text"
+                                            value={formatCurrency(contrato.vlComissao || 0)}
+                                            onChange={handleCurrencyChangeContrato}
+                                            placeholder="0,00"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex flex-row space-x-5 mt-4">
                                     <div className='flex flex-col'>
                                         <label htmlFor="dsNome" className='mb-1 text-sm font-medium text-gray-700'>Nome Corretora</label>
                                         <input className='cursor-not-allowed px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm transition bg-gray-100' 
@@ -1078,6 +1132,17 @@ export default function ContratoForm(pageTitle: string, id?: string) {
                                                     return { ...prev, dsEstado: estado}
                                                 })
                                             }
+                                        />
+                                    </div>
+                                    <div className='flex flex-col'>
+                                        <label htmlFor="dsChavePix" className='mb-1 text-sm font-medium text-gray-700'>PIX</label>
+                                        <input className='cursor-not-allowed px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm transition bg-gray-100' 
+                                            id='dsChavePix' 
+                                            name='dsChavePix' 
+                                            type="text" 
+                                            value={corretor.dsChavePix}
+                                            onChange={handleChangeCorretor}
+                                            readOnly
                                         />
                                     </div>
                                 </div>
@@ -1155,7 +1220,6 @@ export default function ContratoForm(pageTitle: string, id?: string) {
                                     showYearDropdown
                                     scrollableYearDropdown
                                     scrollableMonthYearDropdown
-                                    required
                                 />
                             </div>
 

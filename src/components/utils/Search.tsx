@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, ChangeEvent } from "react";
 
 interface SelectProps {
   id: string;
@@ -6,9 +6,10 @@ interface SelectProps {
   value: string;
   width?: string;
   onChange: (value: string) => void;
+  onInput?: (event: ChangeEvent<HTMLInputElement>) => void;
 }
 
-export const Select: React.FC<SelectProps> = ({ id, options, value, width, onChange }) => {
+export const Select: React.FC<SelectProps> = ({ id, options, value, width, onChange, onInput }) => {
   const [search, setSearch] = useState<string>("");
   const [open, setOpen] = useState<boolean>(false);
 
@@ -76,7 +77,7 @@ export const Select: React.FC<SelectProps> = ({ id, options, value, width, onCha
           placeholder="Procurar..."
           type="text"
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => { setSearch(e.target.value); if(onInput) onInput(e)}}
           onFocus={() => setOpen(true)}
         />
         <span

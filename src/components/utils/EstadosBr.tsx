@@ -28,3 +28,10 @@ export const estados: string[] = [
   "SE",
   "TO",
 ];
+
+export const pagamentos: string[] = [
+  "PIX",
+  "Em espécie",
+  "Crédito em conta",
+  "Cheque"
+];
