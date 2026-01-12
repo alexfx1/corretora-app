@@ -53,9 +53,9 @@ export default function ContratoForm(pageTitle: string, id?: string) {
     };
 
     const initialStateMercadoria: MercadoriaDto = {
-        nome: '',
+        dsMercadoria: '',
         flAtivo: true
-    }
+    };
 
     const [showDownload, setShowDownload] = useState(false);
     const [showPixKeyField, setShowPixKeyField] = useState(false);
@@ -95,14 +95,11 @@ export default function ContratoForm(pageTitle: string, id?: string) {
     const [contrato, setContrato] = useState<TableContrato>({
         cdContrato: 0,
         cdCorretor: 0,
-        dtContrato: '',
+        dtContrato: undefined,
         comprador: comprador,
         vendedor: vendedor,
         motorista: motorista,
-        mercadoria: {
-            dsMercadoria: '',
-            flAtivo: true,
-        },
+        mercadoria: mercadoria,
         dsStatus: '',
         vlQuantidade: 0,
         vlQuantidadeSaco: 0,
@@ -188,7 +185,7 @@ export default function ContratoForm(pageTitle: string, id?: string) {
                 if (contratoData?.mercadoria) {
                     setMercadoria({
                         flAtivo: contratoData.mercadoria.flAtivo,
-                        nome: contratoData.mercadoria.dsMercadoria,
+                        dsMercadoria: contratoData.mercadoria.dsMercadoria,
                     });
                 }
 
@@ -287,8 +284,11 @@ export default function ContratoForm(pageTitle: string, id?: string) {
         contrato.comprador = comprador;
         contrato.vendedor = vendedor;
         contrato.motorista = motorista;
-        contrato.mercadoria!.dsMercadoria = mercadoria.nome;
-        contrato.mercadoria!.flAtivo = mercadoria.flAtivo;
+
+        console.log('mercadoria!!!!')
+        console.log(mercadoria.dsMercadoria);
+
+        contrato.mercadoria = mercadoria;
 
         setContrato(contrato);
 
@@ -795,13 +795,13 @@ export default function ContratoForm(pageTitle: string, id?: string) {
                                     <div className='flex flex-col'>
                                         <label htmlFor="nome" className='mb-1 text-sm font-medium text-gray-700'>Mercadoria</label>
                                         <Select
-                                            id="nome"
-                                            options={mercadorias.map((mercadoria) => mercadoria.nome)}
-                                            value={mercadoria.nome}
-                                            onChange={(mercadoria) =>
+                                            id="dsMercadoria"
+                                            options={mercadorias.map(m => m.dsMercadoria)}
+                                            value={mercadoria.dsMercadoria}
+                                            onChange={(value) =>
                                                 setMercadoria((prev) => ({
                                                     ...prev,
-                                                    nome: mercadoria,
+                                                    dsMercadoria: value,
                                                 }))
                                             }
                                         />

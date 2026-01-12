@@ -110,34 +110,35 @@ export default function Login() {
                             />
                         </div>
                         {/* Form Section */}
-                        <form className="p-10 flex justify-center flex-col items-center">
-                            <h1 className="text-3xl font-bold mb-6 text-center" hidden={title}>Entrar Como</h1>
-                            {/* Loading State */}
-                            {loading ? (
-                                <p className="text-sm text-gray-500 animate-pulse mb-4">Carregando usuários...</p>
-                            ) : corretores.length > 0 ? (
-                                <div className="max-h-60 overflow-y-auto border border-gray-300 rounded-md shadow-sm mb-6">
-                                    <table className="min-w-full border-collapse w-[300px]">
-                                        <tbody>
-                                            {corretores.map((corretor, index) => (
-                                                <tr key={index} className="border-b border-gray-200 hover:bg-gray-50">
-                                                    <td className="p-3 text-gray-700 hover:bg-neutral-300 min-w-full cursor-pointer" onClick={(e) => {
-                                                            e.preventDefault();
-                                                            localStorage.setItem("corretor", JSON.stringify(corretor));
-                                                            router.push("/menu");
-                                                        }}
-                                                        >
-                                                            {corretor.dsNome}
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            ) : (
-                                <p className="text-sm text-gray-500 mb-4">Cadastre-se no sistema</p>
-                            )}
-
+                        <form className="p-10 flex justify-center flex-col items-center space-y-20">
+                            <div className="flex flex-col">
+                                <h1 className="text-3xl font-bold mb-6 text-center" hidden={title}>Entrar Como</h1>
+                                {/* Loading State */}
+                                {loading ? (
+                                    <p className="text-sm text-gray-500 animate-pulse mb-4">Carregando usuários...</p>
+                                ) : corretores.length > 0 ? (
+                                    <div className="max-h-60 overflow-y-auto border border-gray-300 rounded-md shadow-sm mb-6">
+                                        <table className="min-w-full border-collapse w-[300px]">
+                                            <tbody>
+                                                {corretores.map((corretor, index) => (
+                                                    <tr key={index} className="border-b border-gray-200 hover:bg-gray-50">
+                                                        <td className="p-3 text-gray-700 hover:bg-neutral-300 min-w-full cursor-pointer" onClick={(e) => {
+                                                                e.preventDefault();
+                                                                localStorage.setItem("corretor", JSON.stringify(corretor));
+                                                                router.push("/menu");
+                                                            }}
+                                                            >
+                                                                {corretor.dsNome}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                ) : (
+                                    <p className="text-sm text-gray-500 mb-4">Cadastre-se no sistema</p>
+                                )}
+                            </div>
                             {/* Button */}
                             <button
                                 onClick={() => setShowCadastro(true)}

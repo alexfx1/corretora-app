@@ -2,7 +2,7 @@ const baseUrl = process.env.NEXT_PUBLIC_CORRETOR_API_URL;
 const url = `${baseUrl}/mercadoria`;
 
 export interface MercadoriaDto {
-    nome: string;
+    dsMercadoria: string;
     flAtivo: boolean;
 }
 

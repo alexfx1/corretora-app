@@ -5,7 +5,7 @@ export function SideBarComponent({nome} : {nome?: string}) {
     const router = useRouter();
 
     return (
-        <aside className="w-[364px] min-h-screen bg-[#69A5D5] text-white flex flex-col overflow-auto">
+        <aside className="w-[364px] min-h-screen bg-[#69A5D5] text-white flex flex-col">
             <div className="flex flex-col justify-center items-center mt-10">
                 <div className="flex justify-center">
                     <Image

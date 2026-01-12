@@ -57,7 +57,7 @@ export const Select: React.FC<SelectProps> = ({ id, options, value, width, onCha
               setOpen(false);
             }}
           >
-            No Matches Found
+            Sem opções no momento
           </div>,
         ];
   }, [options, search, onChange]);
@@ -73,11 +73,18 @@ export const Select: React.FC<SelectProps> = ({ id, options, value, width, onCha
     >
       <div className="flex w-full items-center justify-between divide-x divide-neutral-200 gap-1 border border-neutral-400 bg-white text-black rounded-md overflow-hidden">
         <input
+          id={id}
+          name={id}
           className="flex-auto outline-none px-2"
           placeholder="Procurar..."
           type="text"
           value={search}
-          onChange={(e) => { setSearch(e.target.value); if(onInput) onInput(e)}}
+          onChange={(e) => {
+            const val = e.target.value;
+            setSearch(val);
+            onChange(val);
+            if(onInput) onInput(e);
+          }}
           onFocus={() => setOpen(true)}
         />
         <span

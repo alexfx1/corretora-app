@@ -1,5 +1,6 @@
 import { ClienteDto } from "./ClienteService";
 import { Corretor } from "./CorretorService";
+import { MercadoriaDto } from "./MercadoriaService";
 import { MotoristaDto } from "./MotoristaService";
 
 const envUrl = process.env.NEXT_PUBLIC_CORRETOR_API_URL;
@@ -24,10 +25,7 @@ export interface TableContrato {
     comprador?: ClienteDto;
     vendedor?: ClienteDto;
     motorista?: MotoristaDto;
-    mercadoria?: {
-        dsMercadoria?: string,
-        flAtivo?: boolean,
-    }
+    mercadoria?: MercadoriaDto;
     dsStatus?: string;
     vlQuantidade?: number;
     vlQuantidadeSaco?: number,
@@ -43,7 +41,7 @@ export interface TableContrato {
     dsPagamento?: string;
     dsFormaPagamento?: string;
     dsDescricao?: string;
-    dtContrato: string;
+    dtContrato?: string;
     dtInicio?: string;
 }
 
@@ -53,10 +51,7 @@ export interface ContratoDto {
     comprador: ClienteDto;
     vendedor: ClienteDto;
     motorista: MotoristaDto;
-    mercadoria: {
-        dsMercadoria: string,
-        flAtivo: boolean,
-    }
+    mercadoria: MercadoriaDto;
     dsStatus: string;
     vlQuantidade: number;
     vlQuantidadeSaco: number,
