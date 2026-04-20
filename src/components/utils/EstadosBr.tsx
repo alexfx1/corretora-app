@@ -35,3 +35,8 @@ export const pagamentos: string[] = [
   "Crédito em conta",
   "Cheque"
 ];
+
+export const unidades: string[] = [
+  "Scs",
+  "Ton"
+];

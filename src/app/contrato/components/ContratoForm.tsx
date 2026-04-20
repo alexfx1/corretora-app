@@ -7,7 +7,7 @@ import { ClienteDto, GetAllClients } from "@/components/service/ClienteService";
 import { SideBarComponent } from '@/components/menu/SideBar';
 import { Corretor } from '@/components/service/CorretorService';
 import { Bank, GetBanks } from "@/components/service/BancoService";
-import { estados, pagamentos } from '@/components/utils/EstadosBr';
+import { estados, pagamentos, unidades } from '@/components/utils/EstadosBr';
 import { Disconected } from '@/components/utils/Disconected';
 import { Loading } from '@/components/utils/Loading';
 import { FilePenLine, RefreshCcw, Pencil } from "lucide-react";
@@ -112,6 +112,7 @@ export default function ContratoForm(pageTitle: string, id?: string) {
         dsEmbalagem: 'A granel',
         dsPesoQualidade: 'Na origem',
         dsCargaConta: '',
+        unit: 'Scs',
         dsPagamento: 'SOBRE RODAS',
         dsFormaPagamento: '',
         dsDescricao: ''
@@ -253,6 +254,11 @@ export default function ContratoForm(pageTitle: string, id?: string) {
         });
     };
 
+    const handleChangeSelectUnit = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const { id, value } = e.target;
+        setContrato((prev) => ({ ...prev, [id]: value }));
+    }
+
     const parseContractInfo = (contrato: ContratoDto) => {
         if(contrato.comprador) {
             setComprador(contrato.comprador);
@@ -284,9 +290,6 @@ export default function ContratoForm(pageTitle: string, id?: string) {
         contrato.comprador = comprador;
         contrato.vendedor = vendedor;
         contrato.motorista = motorista;
-
-        console.log('mercadoria!!!!')
-        console.log(mercadoria.dsMercadoria);
 
         contrato.mercadoria = mercadoria;
 
@@ -730,7 +733,6 @@ export default function ContratoForm(pageTitle: string, id?: string) {
                                             type="text" 
                                             value={motorista.dsNome ? motorista.dsNome : '' } 
                                             onChange={handleChangeMotorista}
-                                            required
                                         />
                                     </div>
                                     <div className='flex flex-col'>
@@ -808,13 +810,27 @@ export default function ContratoForm(pageTitle: string, id?: string) {
                                     </div>
                                     <div className='flex flex-col'>
                                         <label htmlFor="dsEmbalagem" className='mb-1 text-sm font-medium text-gray-700'>Embalagem</label>
-                                        <input className='w-[350px] px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm transition' 
+                                        <input className='w-[175px] px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm transition' 
                                             id='dsEmbalagem' 
                                             name='dsEmbalagem' 
                                             type="text" 
                                             value={contrato.dsEmbalagem ? contrato.dsEmbalagem : ''} 
                                             onChange={handleChangeContrato}
                                         />
+                                    </div>
+                                    <div className='flex flex-col'>
+                                        <label htmlFor="dsEmbalagem" className='mb-1 text-sm font-medium text-gray-700'>Unidade</label>
+                                        <select name="unit" id="unit" className='w-[175px] px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm transition' 
+                                            value={contrato.unit ? contrato.unit : ''} 
+                                            onChange={handleChangeSelectUnit}
+                                        >
+                                            <option value=""></option>
+                                            {unidades.map((unidade) => (
+                                                <option key={unidade} value={unidade}>
+                                                    {unidade}
+                                                </option>
+                                            ))}
+                                        </select>
                                     </div>
                                 </div>
                                 <div className="flex flex-row space-x-5 items-center mt-4">
@@ -862,28 +878,32 @@ export default function ContratoForm(pageTitle: string, id?: string) {
                                             onChange={handleChangeContrato}
                                         />
                                     </div>
-                                    <div className='flex flex-col'>
-                                        <label htmlFor="vlQuantidadeSaco" className='mb-1 text-sm font-medium text-gray-700'>Scs.</label>
-                                        <input className='cursor-not-allowed px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm transition bg-gray-100' 
-                                            id='vlQuantidadeSaco' 
-                                            name='vlQuantidadeSaco' 
-                                            type="number" 
-                                            value={contrato.vlQuantidadeSaco || 0} 
-                                            onChange={handleChangeContrato}
-                                            readOnly
-                                        />
-                                    </div>
-                                    <div className='flex flex-col'>
-                                        <label htmlFor="vlKilo" className='mb-1 text-sm font-medium text-gray-700'>Kgs.</label>
-                                        <input className='cursor-not-allowed px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm transition bg-gray-100' 
-                                            id='vlKilo' 
-                                            name='vlKilo' 
-                                            type="number" 
-                                            value={contrato.vlKilo ?? 60} 
-                                            onChange={handleChangeContrato}
-                                            readOnly
-                                        />
-                                    </div>
+                                    { contrato.unit !== "Ton" && (
+                                        <>
+                                            <div className='flex flex-col'>
+                                                <label htmlFor="vlQuantidadeSaco" className='mb-1 text-sm font-medium text-gray-700'>Scs.</label>
+                                                <input className='cursor-not-allowed px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm transition bg-gray-100' 
+                                                    id='vlQuantidadeSaco' 
+                                                    name='vlQuantidadeSaco' 
+                                                    type="number" 
+                                                    value={contrato.vlQuantidadeSaco || 0} 
+                                                    onChange={handleChangeContrato}
+                                                    readOnly
+                                                />
+                                            </div>
+                                            <div className='flex flex-col'>
+                                                <label htmlFor="vlKilo" className='mb-1 text-sm font-medium text-gray-700'>Kgs.</label>
+                                                <input className='cursor-not-allowed px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm transition bg-gray-100' 
+                                                    id='vlKilo' 
+                                                    name='vlKilo' 
+                                                    type="number" 
+                                                    value={contrato.vlKilo ?? 60} 
+                                                    onChange={handleChangeContrato}
+                                                    readOnly
+                                                />
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                                 <div className="flex flex-row space-x-5 items-center mt-4 w-full">
                                     <div className='flex flex-col'>

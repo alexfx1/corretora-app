@@ -86,9 +86,10 @@ export default function ClientForm(pageTitle: string, id?: string) {
         e.preventDefault();
         if (cliente) {
             setLoading(true);
-            await PostCliente(cliente);
+            const client = await PostCliente(cliente);
             setSuccessMessage("Cliente atualizado com sucesso!");
             setLoading(false);
+            setCliente(client);
             setTimeout(() => {
                 setSuccessMessage(null);
             }, 5000);

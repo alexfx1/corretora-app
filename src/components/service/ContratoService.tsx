@@ -36,6 +36,7 @@ export interface TableContrato {
     dsArmazenagem?: string;
     dsEnderecoEntrega?: string;
     dsEmbalagem?: string;
+    unit: string;
     dsPesoQualidade?: string;
     dsCargaConta?: string;
     dsPagamento?: string;
@@ -68,6 +69,7 @@ export interface ContratoDto {
     dsFormaPagamento: string;
     dsDescricao: string;
     dtContrato: string;
+    unit: string;
 }
 
 export interface TableContratoResponse {
